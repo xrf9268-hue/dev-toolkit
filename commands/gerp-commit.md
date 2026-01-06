@@ -1,5 +1,6 @@
 ---
 description: 创建规范化的 git 提交（自动添加 JIRA 前缀，中文描述）
+model: claude-haiku-4-5-20251001
 argument-hint: [JIRA编号（可选，如 BGERP-12345）]
 allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git diff:*), Bash(git log:*), Bash(git branch:*)
 ---
