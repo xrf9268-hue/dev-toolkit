@@ -22,6 +22,46 @@ git clone <repo-url> gerp-commit
 cp commands/*.md ~/.claude/commands/
 ```
 
+### 方式三：OpenAI Codex CLI
+
+本仓库同时支持 [OpenAI Codex CLI](https://github.com/openai/codex)，使用 [Skills](https://developers.openai.com/codex/skills) 格式。
+
+**安装 Codex CLI：**
+
+以官方文档为准，下面是常见安装方式：
+
+```bash
+# npm 安装
+npm install -g @openai/codex
+
+# 或 Homebrew (macOS)
+brew install --cask codex
+```
+
+**使用方式：**
+
+克隆本仓库后，Codex 会自动识别 `.codex/skills/` 目录下的 Skills。
+
+```bash
+# 在项目中使用
+$gerp-commit
+
+# 或带参数
+$gerp-commit BGERP-12345
+```
+
+**全局安装（可选）：**
+
+```bash
+# 复制到用户目录，所有项目可用
+mkdir -p ~/.codex/skills
+cp -r .codex/skills/gerp-commit ~/.codex/skills/
+```
+
+更多信息：
+- [Codex GitHub](https://github.com/openai/codex)
+- [Codex Skills 文档](https://developers.openai.com/codex/skills)
+
 ## 可用命令
 
 ### `/gerp-commit`
@@ -69,9 +109,13 @@ cp commands/*.md ~/.claude/commands/
 ```
 gerp-commit/
 ├── .claude-plugin/
-│   └── plugin.json      # 插件元数据
+│   └── plugin.json              # Claude Code 插件元数据
+├── .codex/
+│   └── skills/
+│       └── gerp-commit/
+│           └── SKILL.md         # Codex Skill 定义
 ├── commands/
-│   └── gerp-commit.md   # 提交命令
+│   └── gerp-commit.md           # Claude Code 命令
 └── README.md
 ```
 
