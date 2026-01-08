@@ -1,84 +1,50 @@
 # GERP Commit Plugin
 
-GERP-UI 项目规范化提交命令插件，自动添加 JIRA 前缀，使用中文描述。
+GERP-UI 项目规范化提交插件，自动添加 JIRA 前缀，使用中文描述。
+
+支持双平台：
+- **Claude Code**：使用 Subagent（独立上下文，避免污染主对话）
+- **OpenAI Codex**：使用 Skill（遵循官方最佳实践）
 
 ## 安装
 
-### 方式一：作为插件安装（推荐）
+### Claude Code
+
+将 `.claude/agents/` 目录复制到你的项目或用户目录：
 
 ```bash
-cd ~/.claude/plugins
-git clone <repo-url> gerp-commit
+# 项目级安装（仅当前项目可用）
+cp -r .claude/agents/ /path/to/your/project/.claude/agents/
+
+# 用户级安装（所有项目可用）
+mkdir -p ~/.claude/agents
+cp .claude/agents/gerp-commit.md ~/.claude/agents/
 ```
 
-或在 Claude Code 中执行：
-```
-/plugin install <repo-url>
-```
+**使用方式**：
+- **自动触发**：描述任务时自动委派（如 "帮我提交代码"、"commit 一下"）
+- **显式调用**：请求使用 gerp-commit agent
 
-### 方式二：仅安装命令
+**优势**：
+- 上下文隔离：git diff/status 等操作不会污染主对话
+- 仅返回结果：主对话只收到 commit hash 和简述
+
+### OpenAI Codex CLI
 
 ```bash
-cp commands/*.md ~/.claude/commands/
-```
-
-### 方式三：OpenAI Codex CLI
-
-本仓库同时支持 [OpenAI Codex CLI](https://github.com/openai/codex)，使用 [Skills](https://developers.openai.com/codex/skills) 格式。
-
-**安装 Codex CLI：**
-
-以官方文档为准，下面是常见安装方式：
-
-```bash
-# npm 安装
-npm install -g @openai/codex
-
-# 或 Homebrew (macOS)
-brew install --cask codex
-```
-
-**使用方式：**
-
-克隆本仓库后，Codex 会自动识别 `.codex/skills/` 目录下的 Skills。
-
-```bash
-# 在项目中使用
-$gerp-commit
-
-# 或带参数
-$gerp-commit BGERP-12345
-```
-
-**全局安装（可选）：**
-
-```bash
-# 复制到用户目录，所有项目可用
+# 用户级安装（所有项目可用）
 mkdir -p ~/.codex/skills
 cp -r .codex/skills/gerp-commit ~/.codex/skills/
+
+# 项目级安装
+cp -r .codex/ /path/to/your/project/
 ```
 
-更多信息：
-- [Codex GitHub](https://github.com/openai/codex)
-- [Codex Skills 文档](https://developers.openai.com/codex/skills)
+**使用方式**：
+- 显式调用：`$gerp-commit`
+- 隐式触发：描述任务时自动匹配
 
-## 可用命令
-
-### `/gerp-commit`
-
-创建规范化的 git 提交。
-
-**使用方式：**
-
-```bash
-# 自动从分支名提取 JIRA 前缀
-/gerp-commit
-
-# 手动指定 JIRA 编号
-/gerp-commit BGERP-12345
-```
-
-**功能特性：**
+## 功能特性
 
 - 自动从分支名提取 `BGERP-XXXXX` 前缀
 - 支持参数覆盖自动提取的 JIRA
@@ -86,9 +52,7 @@ cp -r .codex/skills/gerp-commit ~/.codex/skills/
 - 使用中文方括号 `【BGERP-XXXXX】`
 - 中文描述提交内容
 
-> **提示**：如需禁用 Claude Code 自动添加的 `Co-Authored-By` 或 `Generated with Claude Code` 后缀，请参考 [Attribution 设置](https://docs.anthropic.com/en/docs/claude-code/settings#attribution-settings)
-
-**提交格式示例：**
+## 提交格式
 
 ```
 【BGERP-32921】修复分页下拉菜单被水平滚动条遮挡问题
@@ -109,17 +73,31 @@ cp -r .codex/skills/gerp-commit ~/.codex/skills/
 
 ```
 gerp-commit/
-├── .claude-plugin/
-│   └── plugin.json              # Claude Code 插件元数据
+├── .claude/
+│   └── agents/
+│       └── gerp-commit.md          # Claude Code Subagent
 ├── .codex/
 │   └── skills/
 │       └── gerp-commit/
-│           └── SKILL.md         # Codex Skill 定义
-├── commands/
-│   └── gerp-commit.md           # Claude Code 命令
+│           └── SKILL.md            # Codex Skill
+├── .claude-plugin/
+│   └── plugin.json                 # Claude Code 插件元数据
 └── README.md
 ```
 
+## 平台差异
+
+| 特性 | Claude Code (Subagent) | Codex (Skill) |
+|-----|------------------------|---------------|
+| 上下文隔离 | ✅ 独立上下文 | ❌ 共享主上下文 |
+| 触发方式 | 自动委派 / 显式 | `$gerp-commit` / 隐式 |
+| 返回结果 | 仅 commit hash | 完整执行过程 |
+
+## 相关文档
+
+- Claude Code：[Attribution 设置](https://docs.anthropic.com/en/docs/claude-code/settings#attribution-settings)（禁用自动添加的后缀）
+- Codex：[Skills 文档](https://developers.openai.com/codex/skills)
+
 ## 贡献
 
-欢迎提交 PR 改进命令或添加新命令。
+欢迎提交 PR 改进插件或添加新功能。
