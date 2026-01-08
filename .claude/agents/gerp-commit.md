@@ -1,6 +1,7 @@
 ---
 description: 创建规范化的 git 提交，自动从分支名提取 BGERP-XXXXX JIRA 前缀，使用中文方括号格式。当用户要求提交代码、创建 commit、或完成功能需要提交时自动委派。
 tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git diff:*), Bash(git log:*), Bash(git branch:*)
+model: haiku
 ---
 
 ## 任务
