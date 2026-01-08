@@ -85,7 +85,8 @@ cp -r .codex/skills/gerp-commit ~/.codex/skills/
 - 无 JIRA 时允许无前缀提交
 - 使用中文方括号 `【BGERP-XXXXX】`
 - 中文描述提交内容
-- 禁止添加 Claude Code 生成后缀
+
+> **提示**：如需禁用 Claude Code 自动添加的 `Co-Authored-By` 或 `Generated with Claude Code` 后缀，请参考 [Attribution 设置](https://docs.anthropic.com/en/docs/claude-code/settings#attribution-settings)
 
 **提交格式示例：**
 

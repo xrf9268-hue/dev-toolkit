@@ -29,7 +29,6 @@ allowed-tools: Bash(git add:*), Bash(git status:*), Bash(git commit:*), Bash(git
    - 首行：简短描述做了什么（50字符以内）
    - 正文（可选）：详细说明原因、影响或技术细节
 4. **禁止内容**：
-   - 不要添加 "Generated with Claude Code" 或 "Co-Authored-By: Claude" 等后缀
    - 不要使用 emoji
    - 不要使用英文 commit type 前缀（如 feat:, fix:, chore:）
 
