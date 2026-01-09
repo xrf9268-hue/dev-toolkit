@@ -1,6 +1,6 @@
 # GERP Commit Plugin
 
-GERP-UI 项目规范化提交插件，自动添加 JIRA 前缀，使用中文描述。
+GERP-UI 项目**专用**规范化提交插件，自动添加 JIRA 前缀，使用中文描述。
 
 支持双平台：
 - **Claude Code**：使用 Skill + Subagent 架构（双重隔离，最佳实践）
@@ -10,17 +10,23 @@ GERP-UI 项目规范化提交插件，自动添加 JIRA 前缀，使用中文描
 
 ### Claude Code
 
-将 `.claude/` 目录复制到你的项目或用户目录：
+> **重要**：此插件专为 GERP-UI 项目设计，必须安装到**项目目录**，避免影响其他项目。
 
 ```bash
-# 项目级安装（仅当前项目可用）
-cp -r .claude/ /path/to/your/project/.claude/
+# ✅ 正确：项目级安装（仅 gerp-ui 项目可用）
+cd /path/to/gerp-ui
+cp -r .claude/ .
 
-# 用户级安装（所有项目可用）
-mkdir -p ~/.claude/{agents,skills/gerp-commit}
-cp .claude/agents/gerp-commit.md ~/.claude/agents/
-cp .claude/skills/gerp-commit/SKILL.md ~/.claude/skills/gerp-commit/
+# ❌ 错误：不要安装到用户目录（会影响所有项目）
+# cp -r .claude/ ~/.claude/  # 不要这样做！
 ```
+
+**作用域说明**：
+
+| 安装位置 | 作用范围 | 是否推荐 |
+|---------|---------|---------|
+| `gerp-ui/.claude/` | 仅 gerp-ui 项目 | ✅ 推荐 |
+| `~/.claude/` | 所有项目 | ❌ 不推荐 |
 
 **架构说明**：
 
@@ -42,16 +48,20 @@ Subagent (model: haiku) 执行 git 操作
 - 双重隔离：Skill `context: fork` + Subagent 独立上下文
 - 轻量高效：Subagent 使用 haiku 模型
 - 仅返回结果：主对话只收到 commit hash 和简述
+- 项目隔离：不影响其他项目的 commit 行为
 
 ### OpenAI Codex CLI
 
-```bash
-# 用户级安装（所有项目可用）
-mkdir -p ~/.codex/skills
-cp -r .codex/skills/gerp-commit ~/.codex/skills/
+> **重要**：同样建议安装到项目目录，避免影响其他项目。
 
-# 项目级安装
-cp -r .codex/ /path/to/your/project/
+```bash
+# ✅ 正确：项目级安装
+cd /path/to/gerp-ui
+cp -r .codex/ .
+
+# ⚠️ 用户级安装（会影响所有项目，谨慎使用）
+# mkdir -p ~/.codex/skills
+# cp -r .codex/skills/gerp-commit ~/.codex/skills/
 ```
 
 **使用方式**：
@@ -86,7 +96,7 @@ cp -r .codex/ /path/to/your/project/
 ## 目录结构
 
 ```
-gerp-commit/
+gerp-ui/                                # 你的项目根目录
 ├── .claude/
 │   ├── agents/
 │   │   └── gerp-commit.md              # Subagent（业务逻辑）
@@ -97,9 +107,7 @@ gerp-commit/
 │   └── skills/
 │       └── gerp-commit/
 │           └── SKILL.md                # Codex Skill
-├── .claude-plugin/
-│   └── plugin.json                     # Claude Code 插件元数据
-└── README.md
+└── ...
 ```
 
 ## 平台差异
@@ -111,6 +119,7 @@ gerp-commit/
 | 模型指定 | ✅ `model: haiku` | ❌ 使用全局配置 |
 | 触发方式 | 自动激活 / 显式 | `$gerp-commit` / 隐式 |
 | 返回结果 | 仅 commit hash | 完整执行过程 |
+| 项目隔离 | ✅ `.claude/` 目录 | ✅ `.codex/` 目录 |
 
 ## 相关文档
 
