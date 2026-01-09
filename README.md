@@ -36,7 +36,7 @@ cp -r .claude/ .
 
 ```bash
 mkdir -p ~/.claude/commands
-cp commands/gerp-commit.md ~/.claude/commands/
+cp .claude/commands/gerp-commit.md ~/.claude/commands/
 ```
 
 **触发方式**：
@@ -104,6 +104,8 @@ gerp-commit/
 ├── .claude/
 │   ├── agents/
 │   │   └── gerp-commit.md              # Subagent（业务逻辑，项目级）
+│   ├── commands/
+│   │   └── gerp-commit.md              # Slash Command（用户级安装用）
 │   └── skills/
 │       └── gerp-commit/
 │           └── SKILL.md                # Skill（入口 + 隔离，项目级）
@@ -111,8 +113,6 @@ gerp-commit/
 │   └── skills/
 │       └── gerp-commit/
 │           └── SKILL.md                # Codex Skill
-├── commands/
-│   └── gerp-commit.md                  # Slash Command（用户级，可选）
 └── README.md
 ```
 
