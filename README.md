@@ -1,67 +1,71 @@
 # GERP Commit Plugin
 
-GERP-UI 项目**专用**规范化提交插件，自动添加 JIRA 前缀，使用中文描述。
+GERP-UI 项目规范化提交插件，自动添加 JIRA 前缀，使用中文描述。
 
 支持双平台：
-- **Claude Code**：使用 Skill + Subagent 架构（双重隔离，最佳实践）
+- **Claude Code**：Skill + Subagent（项目级）+ Slash Command（用户级）
 - **OpenAI Codex**：使用 Skill（遵循官方最佳实践）
 
 ## 安装
 
 ### Claude Code
 
-> **重要**：此插件专为 GERP-UI 项目设计，必须安装到**项目目录**，避免影响其他项目。
+提供两种安装方式，可根据需求选择：
+
+#### 方式一：项目级安装（推荐用于 gerp-ui）
+
+> 自动触发，项目隔离，不影响其他项目
 
 ```bash
-# ✅ 正确：项目级安装（仅 gerp-ui 项目可用）
 cd /path/to/gerp-ui
 cp -r .claude/ .
-
-# ❌ 错误：不要安装到用户目录（会影响所有项目）
-# cp -r .claude/ ~/.claude/  # 不要这样做！
 ```
 
-**作用域说明**：
+**触发方式**：
+- 自动激活："帮我提交代码"、"commit 一下"
+- 显式调用：请求使用 gerp-commit
 
-| 安装位置 | 作用范围 | 是否推荐 |
-|---------|---------|---------|
-| `gerp-ui/.claude/` | 仅 gerp-ui 项目 | ✅ 推荐 |
-| `~/.claude/` | 所有项目 | ❌ 不推荐 |
-
-**架构说明**：
-
+**架构**：
 ```
-用户请求 ("帮我提交代码")
-    ↓ 自动激活
-Skill (context: fork) 创建隔离上下文
-    ↓ 委派给
-Subagent (model: haiku) 执行 git 操作
-    ↓
-返回结果 (仅 commit hash)
+用户请求 → Skill (context: fork) → Subagent (haiku) → 返回结果
 ```
 
-**使用方式**：
-- **自动触发**：描述任务时自动激活（如 "帮我提交代码"、"commit 一下"）
-- **显式调用**：请求使用 gerp-commit
+#### 方式二：用户级安装（可选，跨项目手动调用）
 
-**优势**：
-- 双重隔离：Skill `context: fork` + Subagent 独立上下文
-- 轻量高效：Subagent 使用 haiku 模型
-- 仅返回结果：主对话只收到 commit hash 和简述
-- 项目隔离：不影响其他项目的 commit 行为
+> 手动触发 `/gerp-commit`，适用于任何项目
+
+```bash
+mkdir -p ~/.claude/commands
+cp commands/gerp-commit.md ~/.claude/commands/
+```
+
+**触发方式**：
+- `/gerp-commit` - 使用分支名中的 JIRA
+- `/gerp-commit BGERP-12345` - 指定 JIRA 编号
+
+**注意**：Slash Command 在主上下文运行，git 输出会保留在对话中。
+
+#### 两种方式对比
+
+| 特性 | 项目级 (Skill + Subagent) | 用户级 (Slash Command) |
+|-----|--------------------------|----------------------|
+| 安装位置 | `gerp-ui/.claude/` | `~/.claude/commands/` |
+| 作用范围 | 仅 gerp-ui 项目 | 所有项目 |
+| 触发方式 | 自动激活 | 手动 `/gerp-commit` |
+| 上下文隔离 | ✅ `context: fork` | ❌ 主上下文 |
+| 参数传递 | 对话中说明 | `/gerp-commit BGERP-xxx` |
+| 适用场景 | 日常开发 | 手动控制 |
 
 ### OpenAI Codex CLI
 
-> **重要**：同样建议安装到项目目录，避免影响其他项目。
-
 ```bash
-# ✅ 正确：项目级安装
+# 项目级安装（推荐）
 cd /path/to/gerp-ui
 cp -r .codex/ .
 
-# ⚠️ 用户级安装（会影响所有项目，谨慎使用）
-# mkdir -p ~/.codex/skills
-# cp -r .codex/skills/gerp-commit ~/.codex/skills/
+# 用户级安装（可选）
+mkdir -p ~/.codex/skills
+cp -r .codex/skills/gerp-commit ~/.codex/skills/
 ```
 
 **使用方式**：
@@ -96,30 +100,31 @@ cp -r .codex/ .
 ## 目录结构
 
 ```
-gerp-ui/                                # 你的项目根目录
+gerp-commit/
 ├── .claude/
 │   ├── agents/
-│   │   └── gerp-commit.md              # Subagent（业务逻辑）
+│   │   └── gerp-commit.md              # Subagent（业务逻辑，项目级）
 │   └── skills/
 │       └── gerp-commit/
-│           └── SKILL.md                # Skill（入口 + 隔离）
+│           └── SKILL.md                # Skill（入口 + 隔离，项目级）
 ├── .codex/
 │   └── skills/
 │       └── gerp-commit/
 │           └── SKILL.md                # Codex Skill
-└── ...
+├── commands/
+│   └── gerp-commit.md                  # Slash Command（用户级，可选）
+└── README.md
 ```
 
 ## 平台差异
 
-| 特性 | Claude Code | Codex |
-|-----|-------------|-------|
-| 架构 | Skill + Subagent | Skill |
-| 上下文隔离 | ✅ `context: fork` | ❌ 共享主上下文 |
-| 模型指定 | ✅ `model: haiku` | ❌ 使用全局配置 |
-| 触发方式 | 自动激活 / 显式 | `$gerp-commit` / 隐式 |
-| 返回结果 | 仅 commit hash | 完整执行过程 |
-| 项目隔离 | ✅ `.claude/` 目录 | ✅ `.codex/` 目录 |
+| 特性 | Claude Code (项目级) | Claude Code (用户级) | Codex |
+|-----|---------------------|---------------------|-------|
+| 架构 | Skill + Subagent | Slash Command | Skill |
+| 上下文隔离 | ✅ | ❌ | ❌ |
+| 模型 | haiku | haiku | 全局配置 |
+| 触发方式 | 自动 | `/gerp-commit` | `$gerp-commit` |
+| 作用范围 | 仅项目 | 所有项目 | 取决于安装位置 |
 
 ## 相关文档
 
