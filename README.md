@@ -4,7 +4,10 @@ GERP-UI 团队开发工具集，覆盖 [Claude Code](https://github.com/anthropi
 
 ## 工具列表
 
-- **gerp-commit**: 规范化 Git 提交工具，自动添加 JIRA 前缀
+| 工具 | 功能 | 版本 |
+|------|------|------|
+| **gerp-commit** | 规范化 Git 提交工具，自动添加 JIRA 前缀 | 2.0.0 |
+| **gerp-worktree** | Git worktree 自动化管理，支持配置同步和内容迁移 | 1.0.0 |
 
 ## 支持平台
 
@@ -16,9 +19,9 @@ GERP-UI 团队开发工具集，覆盖 [Claude Code](https://github.com/anthropi
 | 特性 | Claude Code | Codex CLI |
 |-----|-------------|-----------|
 | 形态 | Plugin + Skill | Skill |
-| 上下文隔离 | ✅ `context: fork` | ❌ |
-| 触发方式 | 自动 / 手动 | `$gerp-commit` |
-| 安装位置 | `plugins/gerp-commit/` | `.codex/` |
+| 上下文隔离 | `context: fork` | - |
+| 触发方式 | 自动 / 手动 | `$<skill-name>` |
+| 安装位置 | `plugins/<name>/` | `.codex/skills/<name>/` |
 
 ## 目录结构
 
@@ -27,8 +30,12 @@ gerp-dev-toolkit/
 ├── .claude-plugin/
 │   └── marketplace.json     # Marketplace 清单
 ├── plugins/
-│   └── gerp-commit/          # Claude Code 插件
-└── .codex/                   # Codex CLI Skill
+│   ├── gerp-commit/         # Claude Code 插件
+│   └── gerp-worktree/       # Claude Code 插件
+└── .codex/                  # Codex CLI Skills
+    └── skills/
+        ├── gerp-commit/
+        └── worktree/
 ```
 
 ## Claude Code 安装
@@ -38,12 +45,14 @@ gerp-dev-toolkit/
 ```bash
 /plugin marketplace add xrf9268-hue/gerp-dev-toolkit
 /plugin install gerp-commit@gerp-dev-toolkit
+/plugin install gerp-worktree@gerp-dev-toolkit
 ```
 
 用户级安装（可选，仅在需要跨项目显式调用时使用）：
 
 ```bash
 /plugin install gerp-commit@gerp-dev-toolkit --scope user
+/plugin install gerp-worktree@gerp-dev-toolkit --scope user
 ```
 
 > 建议只在 GERP 相关仓库使用自动触发，其他项目请显式调用。
@@ -61,11 +70,13 @@ claude plugin validate .
 
 # 或验证单个插件
 claude plugin validate ./plugins/gerp-commit
+claude plugin validate ./plugins/gerp-worktree
 ```
 
 ## 插件文档
 
-- `plugins/gerp-commit/README.md`
+- `plugins/gerp-commit/README.md` - 规范化提交工具
+- `plugins/gerp-worktree/README.md` - Worktree 管理工具
 
 ## Codex CLI
 
@@ -79,8 +90,9 @@ cp -r /path/to/gerp-dev-toolkit/.codex/ .
 # 用户级安装（可选，会影响所有项目）
 # mkdir -p ~/.codex/skills
 # cp -r /path/to/gerp-dev-toolkit/.codex/skills/gerp-commit ~/.codex/skills/
+# cp -r /path/to/gerp-dev-toolkit/.codex/skills/worktree ~/.codex/skills/
 ```
 
 **使用方式**：
-- 显式调用：`$gerp-commit`
-- 隐式触发：描述任务时自动匹配
+- gerp-commit：`$gerp-commit`
+- worktree：`$worktree feature-auth`
