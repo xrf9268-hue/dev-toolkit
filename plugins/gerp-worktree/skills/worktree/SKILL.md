@@ -63,9 +63,9 @@ parent/
 
 ## Detailed Documentation
 
-- Complete workflow steps: [WORKFLOW.md](WORKFLOW.md)
-- Content migration guide: [MIGRATION.md](MIGRATION.md)
-- Usage examples: [EXAMPLES.md](EXAMPLES.md)
+- Complete workflow steps: [references/WORKFLOW.md](references/WORKFLOW.md)
+- Content migration guide: [references/MIGRATION.md](references/MIGRATION.md)
+- Usage examples: [references/EXAMPLES.md](references/EXAMPLES.md)
 
 ## Output
 
