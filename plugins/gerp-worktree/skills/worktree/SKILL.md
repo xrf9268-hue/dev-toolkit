@@ -37,10 +37,11 @@ You are an expert DevOps assistant. Create a parallel development environment wi
 1. **Parse arguments** from `$ARGUMENTS`: branch name, `--stash`, `--from <worktree>`
 2. **Analyze context**: Find main repo via `git rev-parse --git-common-dir`
 3. **Resolve branch**: Use provided name or prompt user to select
-4. **Create worktree** at `../.worktrees/<project>/<branch>/`
-5. **Sync configs**: Copy `.claude/`, `.env`, `.vscode/`, etc.
-6. **Install deps**: Background install with detected package manager
-7. **Copy launch command** to clipboard
+4. **Migrate content**: If `--stash` or `--from` specified (see [references/MIGRATION.md](references/MIGRATION.md))
+5. **Create worktree** at `../.worktrees/<project>/<branch>/`
+6. **Sync configs**: Copy `.claude/`, `.codex/`, `.env`, `.vscode/`, etc.
+7. **Install deps**: Background install with detected package manager
+8. **Copy launch command** to clipboard
 
 ## Arguments
 
@@ -76,7 +77,7 @@ Worktree created successfully!
 
   Path:     ../.worktrees/<project>/<branch>/
   Branch:   <branch-name>
-  Configs:  .claude/, .env, .vscode/, ...
+  Configs:  .claude/, .codex/, .env, .vscode/, ...
   Migrated: [if applicable]
   Dependencies: Installing in background (<pkg-mgr>)
 

@@ -22,7 +22,7 @@ $worktree [branch-name] [--stash] [--from <worktree>]
 3. **Resolve branch**: Use provided name or prompt user to select
 4. **Migrate content**: If `--stash` or `--from` specified (see [MIGRATION.md](references/MIGRATION.md))
 5. **Create worktree** at `../.worktrees/<project>/<branch>/`
-6. **Sync configs**: Copy `.codex/`, `.env`, `.vscode/`, etc.
+6. **Sync configs**: Copy `.claude/`, `.codex/`, `.env`, `.vscode/`, etc.
 7. **Install deps**: Background install with detected package manager
 8. **Copy launch command** to clipboard
 
@@ -60,7 +60,7 @@ Worktree created successfully!
 
   Path:     ../.worktrees/<project>/<branch>/
   Branch:   <branch-name>
-  Configs:  .codex/, .env, .vscode/, ...
+  Configs:  .claude/, .codex/, .env, .vscode/, ...
   Migrated: [if applicable]
   Dependencies: Installing in background (<pkg-mgr>)
 
