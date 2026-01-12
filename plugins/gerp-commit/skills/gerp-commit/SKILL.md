@@ -10,7 +10,7 @@ description: |
   仅适用于 GERP 项目，非 GERP 分支请显式调用并指定 JIRA 编号。
 context: fork
 agent: general-purpose
-model: claude-haiku-4-5-20251001
+model: haiku
 user-invocable: true
 argument-hint: "[JIRA编号（可选，如 BGERP-12345）]"
 allowed-tools:
