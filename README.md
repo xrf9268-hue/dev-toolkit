@@ -80,18 +80,14 @@ claude plugin validate ./plugins/gerp-worktree
 
 ## Codex CLI
 
-Codex Skill 位于 `.codex/`，安装方式：
+使用 `$skill-installer` 安装：
 
-```bash
-# 项目级安装（推荐）
-cd /path/to/gerp-ui
-cp -r /path/to/gerp-dev-toolkit/.codex/ .
-
-# 用户级安装（可选，会影响所有项目）
-# mkdir -p ~/.codex/skills
-# cp -r /path/to/gerp-dev-toolkit/.codex/skills/gerp-commit ~/.codex/skills/
-# cp -r /path/to/gerp-dev-toolkit/.codex/skills/worktree ~/.codex/skills/
 ```
+$skill-installer install https://github.com/xrf9268-hue/gerp-dev-toolkit/tree/main/.codex/skills/gerp-commit
+$skill-installer install https://github.com/xrf9268-hue/gerp-dev-toolkit/tree/main/.codex/skills/worktree
+```
+
+安装后重启 Codex 生效。
 
 **使用方式**：
 - gerp-commit：`$gerp-commit`
