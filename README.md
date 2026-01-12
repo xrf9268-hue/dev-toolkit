@@ -40,10 +40,28 @@ gerp-dev-toolkit/
 
 ## Claude Code 安装
 
+### 远程安装
+
 添加 marketplace 并安装插件：
 
 ```bash
 /plugin marketplace add xrf9268-hue/gerp-dev-toolkit
+/plugin install gerp-commit@gerp-dev-toolkit
+/plugin install gerp-worktree@gerp-dev-toolkit
+```
+
+### 本地安装
+
+从本地路径安装（适用于开发调试或离线环境）：
+
+```bash
+# 在 marketplace 根目录执行
+/plugin marketplace add ./
+
+# 或指定完整路径
+/plugin marketplace add /path/to/gerp-dev-toolkit
+
+# 安装插件
 /plugin install gerp-commit@gerp-dev-toolkit
 /plugin install gerp-worktree@gerp-dev-toolkit
 ```
