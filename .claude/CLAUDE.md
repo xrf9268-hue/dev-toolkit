@@ -13,7 +13,7 @@ GERP Dev Toolkit 是一个多平台开发工具集，为 Claude Code 和 Codex C
 claude plugin validate .
 
 # 验证单个插件
-claude plugin validate ./plugins/gerp-commit
+claude plugin validate ./plugins/jira-commit
 claude plugin validate ./plugins/gerp-worktree
 ```
 
@@ -43,5 +43,5 @@ claude plugin validate ./plugins/gerp-worktree
 
 | 插件 | plugin.json | skill 文件 |
 |------|-------------|-----------|
-| gerp-commit | `plugins/gerp-commit/.claude-plugin/plugin.json` | `plugins/gerp-commit/skills/gerp-commit/SKILL.md` |
+| jira-commit | `plugins/jira-commit/.claude-plugin/plugin.json` | `plugins/jira-commit/skills/jira-commit/SKILL.md` |
 | gerp-worktree | `plugins/gerp-worktree/.claude-plugin/plugin.json` | `plugins/gerp-worktree/skills/worktree/SKILL.md` |
