@@ -8,8 +8,8 @@
   },
   "plugins": [
     {
-      "name": "gerp-commit",
-      "source": "./plugins/gerp-commit",
+      "name": "jira-commit",
+      "source": "./plugins/jira-commit",
       "category": "productivity"
     },
     {
