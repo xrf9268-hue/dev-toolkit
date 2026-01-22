@@ -64,8 +64,8 @@ GET /projects/{project}/repos/{repo}/pull-requests/{pr_id}
   "createdDate": 1705123456000,
   "updatedDate": 1705123456000,
   "fromRef": {
-    "id": "refs/heads/feature/BESTSMART-12345",
-    "displayId": "feature/BESTSMART-12345",
+    "id": "refs/heads/feature/PROJ-12345",
+    "displayId": "feature/PROJ-12345",
     "latestCommit": "abc123..."
   },
   "toRef": {
