@@ -11,7 +11,7 @@
       "name": "gerp-commit",
       "source": "./plugins/gerp-commit",
       "description": "GERP-UI 项目专用规范化提交插件，自动添加 JIRA 前缀",
-      "version": "2.0.0",
+      "version": "2.0.1",
       "author": {
         "name": "yvan",
         "email": "echo.yvan@gmail.com"
@@ -26,7 +26,7 @@
       "name": "gerp-worktree",
       "source": "./plugins/gerp-worktree",
       "description": "Git worktree 自动化管理工具，支持配置同步、内容迁移和后台依赖安装",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "yvan",
         "email": "echo.yvan@gmail.com"
