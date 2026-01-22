@@ -16,6 +16,11 @@
       "name": "gerp-worktree",
       "source": "./plugins/gerp-worktree",
       "category": "devops"
+    },
+    {
+      "name": "bb-code-review",
+      "source": "./plugins/bb-code-review",
+      "category": "code-quality"
     }
   ]
 }
