@@ -4,17 +4,17 @@
 
 ## 认证方式
 
-### Bearer Token（推荐）
+### Basic Auth（推荐）
 
 ```bash
-curl -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+curl -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   "https://$BITBUCKET_HOST/rest/api/1.0/..."
 ```
 
-### Basic Auth
+### Bearer Token
 
 ```bash
-curl -u "$BITBUCKET_USER:$BITBUCKET_TOKEN" \
+curl -H "Authorization: Bearer $BITBUCKET_TOKEN" \
   "https://$BITBUCKET_HOST/rest/api/1.0/..."
 ```
 

@@ -53,3 +53,4 @@ claude plugin validate ./plugins/gerp-worktree
 |------|-------------|-----------|
 | jira-commit | `plugins/jira-commit/.claude-plugin/plugin.json` | `plugins/jira-commit/skills/jira-commit/SKILL.md` |
 | gerp-worktree | `plugins/gerp-worktree/.claude-plugin/plugin.json` | `plugins/gerp-worktree/skills/worktree/SKILL.md` |
+| bb-code-review | `plugins/bb-code-review/.claude-plugin/plugin.json` | `plugins/bb-code-review/skills/bb-review/SKILL.md` |
