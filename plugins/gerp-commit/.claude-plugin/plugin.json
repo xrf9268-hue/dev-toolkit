@@ -1,7 +1,8 @@
 {
   "name": "gerp-commit",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "GERP-UI 项目专用规范化提交插件，自动添加 JIRA 前缀，使用中文描述",
+  "skills": "./skills",
   "author": {
     "name": "yvan",
     "email": "echo.yvan@gmail.com",

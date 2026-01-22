@@ -10,31 +10,11 @@
     {
       "name": "gerp-commit",
       "source": "./plugins/gerp-commit",
-      "description": "GERP-UI 项目专用规范化提交插件，自动添加 JIRA 前缀",
-      "version": "2.0.1",
-      "author": {
-        "name": "yvan",
-        "email": "echo.yvan@gmail.com"
-      },
-      "homepage": "https://github.com/xrf9268-hue/gerp-dev-toolkit",
-      "repository": "https://github.com/xrf9268-hue/gerp-dev-toolkit",
-      "license": "MIT",
-      "keywords": ["git", "commit", "jira", "workflow", "gerp", "conventional-commit", "团队规范"],
       "category": "productivity"
     },
     {
       "name": "gerp-worktree",
       "source": "./plugins/gerp-worktree",
-      "description": "Git worktree 自动化管理工具，支持配置同步、内容迁移和后台依赖安装",
-      "version": "1.0.1",
-      "author": {
-        "name": "yvan",
-        "email": "echo.yvan@gmail.com"
-      },
-      "homepage": "https://github.com/xrf9268-hue/gerp-dev-toolkit",
-      "repository": "https://github.com/xrf9268-hue/gerp-dev-toolkit",
-      "license": "MIT",
-      "keywords": ["git", "worktree", "workflow", "branch", "parallel-development", "devops"],
       "category": "devops"
     }
   ]

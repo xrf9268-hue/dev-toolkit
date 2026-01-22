@@ -1,0 +1,47 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## 项目概述
+
+GERP Dev Toolkit 是一个多平台开发工具集，为 Claude Code 和 Codex CLI 提供插件/技能支持。
+
+## 常用命令
+
+```bash
+# 验证整个 Marketplace（需在根目录执行）
+claude plugin validate .
+
+# 验证单个插件
+claude plugin validate ./plugins/gerp-commit
+claude plugin validate ./plugins/gerp-worktree
+```
+
+## 架构
+
+### 双平台结构
+
+本仓库同时支持 Claude Code 和 Codex CLI，两套实现独立维护：
+
+- **Claude Code**: `plugins/<name>/.claude-plugin/plugin.json` + `plugins/<name>/skills/<skill>/SKILL.md`
+- **Codex CLI**: `.codex/skills/<name>/SKILL.md`
+
+### 版本号管理
+
+**单一来源原则**: 版本号仅在 `plugin.json` 中定义，`marketplace.json` 不重复配置。
+
+### 关键配置
+
+**plugin.json 必需字段**:
+- `skills`: 必须显式配置 `"./skills"` 才能让 slash command 正确显示
+
+**SKILL.md frontmatter**:
+- `disable-model-invocation: true`: 仅用户手动调用，不自动触发
+- `context: fork`: 上下文隔离执行
+
+### 文件对应关系
+
+| 插件 | plugin.json | skill 文件 |
+|------|-------------|-----------|
+| gerp-commit | `plugins/gerp-commit/.claude-plugin/plugin.json` | `plugins/gerp-commit/skills/gerp-commit/SKILL.md` |
+| gerp-worktree | `plugins/gerp-worktree/.claude-plugin/plugin.json` | `plugins/gerp-worktree/skills/worktree/SKILL.md` |
