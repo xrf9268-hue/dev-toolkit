@@ -31,9 +31,9 @@ https://{BITBUCKET_HOST}/rest/api/1.0
 从 PR URL 提取参数：
 
 ```
-http://bitbucket.rd.800best.com/projects/BESTSMART/repos/html/pull-requests/8393/overview
-                                        ↓           ↓              ↓
-                                     PROJECT      REPO           PR_ID
+https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123/overview
+                                    ↓        ↓              ↓
+                                 PROJECT    REPO          PR_ID
 ```
 
 正则表达式：
@@ -420,33 +420,35 @@ GET /projects/{project}/repos/{repo}/browse/{path}?at={ref}
 #!/bin/bash
 set -e
 
-# 配置
-BITBUCKET_HOST="bitbucket.rd.800best.com"
-PROJECT="BESTSMART"
-REPO="html"
-PR_ID="8393"
+# 配置（从环境变量读取）
+# export BITBUCKET_HOST="your-bitbucket-server.example.com"
+# export BITBUCKET_USER="your-username"
+# export BITBUCKET_PASSWORD="your-password"
+PROJECT="PROJECT"
+REPO="REPO"
+PR_ID="123"
 
 # 1. 获取 PR 信息
-pr_info=$(curl -s -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+pr_info=$(curl -s -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   "https://$BITBUCKET_HOST/rest/api/1.0/projects/$PROJECT/repos/$REPO/pull-requests/$PR_ID")
 
 echo "PR Title: $(echo $pr_info | jq -r '.title')"
 echo "PR State: $(echo $pr_info | jq -r '.state')"
 
 # 2. 获取变更文件
-changes=$(curl -s -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+changes=$(curl -s -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   "https://$BITBUCKET_HOST/rest/api/1.0/projects/$PROJECT/repos/$REPO/pull-requests/$PR_ID/changes?limit=1000")
 
 echo "Changed files:"
 echo $changes | jq -r '.values[].path.toString'
 
 # 3. 获取 diff
-diff=$(curl -s -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+diff=$(curl -s -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   "https://$BITBUCKET_HOST/rest/api/1.0/projects/$PROJECT/repos/$REPO/pull-requests/$PR_ID/diff")
 
 # 4. 发布评论
 curl -X POST \
-  -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+  -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   -H "Content-Type: application/json" \
   "https://$BITBUCKET_HOST/rest/api/1.0/projects/$PROJECT/repos/$REPO/pull-requests/$PR_ID/comments" \
   -d '{

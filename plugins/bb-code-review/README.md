@@ -11,35 +11,51 @@ Bitbucket PR 代码审查插件，支持多 Agent 并行审查和自动评论。
 
 ## 环境配置
 
-### 获取 Personal Access Token
+### 认证方式
 
-1. 登录 Bitbucket Server
-2. 点击右上角头像 → **Manage account**
-3. 选择 **Personal access tokens**
-4. 点击 **Create a token**
-5. 设置权限：
-   - **Repository**: Read, Write
-   - **Pull Request**: Read, Write
-6. 复制生成的 Token
+本插件使用两种认证方式：
+- **API 认证**: Basic Auth（用户名 + 密码）
+- **Git 克隆**: SSH（需要配置 SSH Key）
+
+### 配置 SSH Key
+
+1. 生成 SSH Key（如果没有）：
+   ```bash
+   ssh-keygen -t ed25519 -C "your-email@example.com"
+   ```
+
+2. 将公钥添加到 Bitbucket：
+   - 登录 Bitbucket Server
+   - 点击头像 → **Manage account** → **SSH keys**
+   - 点击 **Add key**，粘贴 `~/.ssh/id_ed25519.pub` 内容
+
+3. 测试连接：
+   ```bash
+   ssh -T git@$BITBUCKET_HOST -p 7999
+   ```
 
 ### 设置环境变量
 
 ```bash
 # 必需
-export BITBUCKET_HOST="bitbucket.rd.800best.com"
-export BITBUCKET_TOKEN="your-personal-access-token"
-
-# 可选（Basic Auth 时使用）
+export BITBUCKET_HOST="your-bitbucket-server.example.com"
 export BITBUCKET_USER="your-username"
+export BITBUCKET_PASSWORD="your-password"
+
+# 可选（如果 SSH 端口不是默认 7999）
+export BITBUCKET_SSH_HOST="ssh://git@your-bitbucket-server.example.com:7999"
 ```
 
 建议将环境变量添加到 `~/.bashrc` 或 `~/.zshrc`：
 
 ```bash
-echo 'export BITBUCKET_HOST="bitbucket.rd.800best.com"' >> ~/.zshrc
-echo 'export BITBUCKET_TOKEN="your-token"' >> ~/.zshrc
+echo 'export BITBUCKET_HOST="your-bitbucket-server.example.com"' >> ~/.zshrc
+echo 'export BITBUCKET_USER="your-username"' >> ~/.zshrc
+echo 'export BITBUCKET_PASSWORD="your-password"' >> ~/.zshrc
 source ~/.zshrc
 ```
+
+**注意**: 密码存储在环境变量中有一定安全风险，请确保你的机器安全。
 
 ## 使用方法
 
@@ -47,19 +63,19 @@ source ~/.zshrc
 
 ```bash
 # 基本用法
-/bb-review http://bitbucket.rd.800best.com/projects/BESTSMART/repos/html/pull-requests/8393
+/bb-review https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123
 
 # 预览模式（不发布评论）
-/bb-review http://bitbucket.rd.800best.com/projects/BESTSMART/repos/html/pull-requests/8393 --dry-run
+/bb-review https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123 --dry-run
 
 # 调整置信度阈值
-/bb-review http://bitbucket.rd.800best.com/projects/BESTSMART/repos/html/pull-requests/8393 --threshold 90
+/bb-review https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123 --threshold 90
 ```
 
 ### Codex CLI
 
 ```bash
-/bb-code-review http://bitbucket.rd.800best.com/projects/BESTSMART/repos/html/pull-requests/8393
+/bb-code-review https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123
 ```
 
 ## 参数说明
@@ -107,7 +123,7 @@ source ~/.zshrc
 - 3 个警告
 
 已发布评论: 5 条
-PR URL: http://bitbucket.rd.800best.com/projects/BESTSMART/repos/html/pull-requests/8393
+PR URL: https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123
 ```
 
 ### 预览模式
@@ -140,26 +156,31 @@ PR URL: http://bitbucket.rd.800best.com/projects/BESTSMART/repos/html/pull-reque
 
 ### 认证失败 (401)
 
-检查 Token 是否正确设置：
+检查用户名和密码是否正确：
 
 ```bash
-echo $BITBUCKET_TOKEN
 curl -s -o /dev/null -w "%{http_code}" \
-  -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+  -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   "https://$BITBUCKET_HOST/rest/api/1.0/projects"
 ```
 
-### 权限不足 (403)
+### SSH 克隆失败
 
-确保 Token 具有以下权限：
-- Repository: Read, Write
-- Pull Request: Read, Write
+1. 确认 SSH Key 已添加到 Bitbucket
+2. 测试 SSH 连接：
+   ```bash
+   ssh -T git@$BITBUCKET_HOST -p 7999
+   ```
+3. 检查 SSH agent 是否运行：
+   ```bash
+   ssh-add -l
+   ```
 
 ### PR 不存在 (404)
 
 检查 URL 格式是否正确：
 ```
-http://bitbucket.rd.800best.com/projects/{PROJECT}/repos/{REPO}/pull-requests/{PR_ID}
+https://$BITBUCKET_HOST/projects/{PROJECT}/repos/{REPO}/pull-requests/{PR_ID}
 ```
 
 ## 许可证

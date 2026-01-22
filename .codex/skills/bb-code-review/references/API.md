@@ -31,9 +31,9 @@ https://{BITBUCKET_HOST}/rest/api/1.0
 从 PR URL 提取参数：
 
 ```
-http://bitbucket.rd.800best.com/projects/BESTSMART/repos/html/pull-requests/8393/overview
-                                        ↓           ↓              ↓
-                                     PROJECT      REPO           PR_ID
+https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123/overview
+                                    ↓        ↓              ↓
+                                 PROJECT    REPO          PR_ID
 ```
 
 正则表达式：

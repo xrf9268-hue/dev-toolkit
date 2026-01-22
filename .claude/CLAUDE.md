@@ -39,6 +39,14 @@ claude plugin validate ./plugins/gerp-worktree
 - `disable-model-invocation: true`: 仅用户手动调用，不自动触发
 - `context: fork`: 上下文隔离执行
 
+### 敏感信息处理
+
+**禁止硬编码敏感信息**：所有敏感信息（域名、用户名、密码、Token、API Key 等）必须通过环境变量配置，不得写入代码或文档中。
+
+示例：
+- ✅ `$BITBUCKET_HOST`、`$JIRA_TOKEN`
+- ❌ `bitbucket.example.com`、`your-actual-token`
+
 ### 文件对应关系
 
 | 插件 | plugin.json | skill 文件 |

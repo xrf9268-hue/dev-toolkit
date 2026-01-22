@@ -25,9 +25,12 @@ allowed-tools:
 
 | 变量 | 说明 | 必需 |
 |------|------|------|
-| `BITBUCKET_HOST` | Bitbucket Server 地址（如 bitbucket.rd.800best.com） | 是 |
-| `BITBUCKET_TOKEN` | Personal Access Token | 是 |
-| `BITBUCKET_USER` | 用户名（Basic Auth 时使用） | 否 |
+| `BITBUCKET_HOST` | Bitbucket Server 地址 | 是 |
+| `BITBUCKET_USER` | 用户名 | 是 |
+| `BITBUCKET_PASSWORD` | 密码（LDAP 密码，Basic Auth 认证） | 是 |
+| `BITBUCKET_SSH_HOST` | SSH 克隆地址（如 ssh://git@$BITBUCKET_HOST:7999） | 否 |
+
+**注意**：本插件使用 Basic Auth 进行 API 认证，使用 SSH 进行仓库克隆。
 
 ## 参数说明
 
@@ -53,14 +56,15 @@ allowed-tools:
 
 2. 检查环境变量：
    ```bash
-   [ -n "$BITBUCKET_TOKEN" ] || echo "❌ 缺少 BITBUCKET_TOKEN"
+   [ -n "$BITBUCKET_USER" ] || echo "❌ 缺少 BITBUCKET_USER"
+   [ -n "$BITBUCKET_PASSWORD" ] || echo "❌ 缺少 BITBUCKET_PASSWORD"
    [ -n "$BITBUCKET_HOST" ] || echo "❌ 缺少 BITBUCKET_HOST"
    ```
 
 3. 验证认证：
    ```bash
    curl -s -o /dev/null -w "%{http_code}" \
-     -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+     -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
      "https://$BITBUCKET_HOST/rest/api/1.0/projects"
    ```
 
@@ -87,7 +91,7 @@ echo "PROJECT: $PROJECT, REPO: $REPO, PR_ID: $PR_ID"
 确认 PR 处于 OPEN 状态：
 
 ```bash
-curl -s -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+curl -s -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   "https://$BITBUCKET_HOST/rest/api/1.0/projects/$PROJECT/repos/$REPO/pull-requests/$PR_ID" \
   | jq -r '.state'
 ```
@@ -99,8 +103,10 @@ curl -s -H "Authorization: Bearer $BITBUCKET_TOKEN" \
 查找仓库中的 CLAUDE.md 以获取项目规范：
 
 ```bash
-# 克隆到临时目录或使用现有仓库
-git clone --depth 1 ... /tmp/repo
+# 使用 SSH 克隆到临时目录（需要配置 SSH key）
+# SSH 地址格式: ssh://git@$BITBUCKET_HOST:7999/$PROJECT/$REPO.git
+SSH_HOST="${BITBUCKET_SSH_HOST:-ssh://git@$BITBUCKET_HOST:7999}"
+git clone --depth 1 "$SSH_HOST/$PROJECT/$REPO.git" /tmp/repo
 find /tmp/repo -name "CLAUDE.md" -o -name ".claude" -type d
 ```
 
@@ -108,12 +114,12 @@ find /tmp/repo -name "CLAUDE.md" -o -name ".claude" -type d
 
 ```bash
 # 获取变更文件列表
-curl -s -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+curl -s -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   "https://$BITBUCKET_HOST/rest/api/1.0/projects/$PROJECT/repos/$REPO/pull-requests/$PR_ID/changes?limit=1000" \
   | jq -r '.values[].path.toString'
 
 # 获取 diff
-curl -s -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+curl -s -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   "https://$BITBUCKET_HOST/rest/api/1.0/projects/$PROJECT/repos/$REPO/pull-requests/$PR_ID/diff"
 ```
 
@@ -171,7 +177,7 @@ issues.filter(issue => issue.confidence >= threshold)
 ```bash
 # 发布行级评论
 curl -X POST \
-  -H "Authorization: Bearer $BITBUCKET_TOKEN" \
+  -u "$BITBUCKET_USER:$BITBUCKET_PASSWORD" \
   -H "Content-Type: application/json" \
   "https://$BITBUCKET_HOST/rest/api/1.0/projects/$PROJECT/repos/$REPO/pull-requests/$PR_ID/comments" \
   -d '{
@@ -199,7 +205,7 @@ curl -X POST \
 - 3 个警告
 
 已发布评论: 5 条
-PR URL: http://bitbucket.rd.800best.com/projects/BESTSMART/repos/html/pull-requests/8393
+PR URL: https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123
 ```
 
 **预览模式**：
