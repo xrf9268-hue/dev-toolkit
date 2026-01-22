@@ -11,7 +11,7 @@ description: |
 context: fork
 agent: general-purpose
 model: haiku
-user-invocable: true
+disable-model-invocation: true
 argument-hint: "[JIRA编号（可选，如 BGERP-12345）]"
 allowed-tools:
   - Bash(git add:*)

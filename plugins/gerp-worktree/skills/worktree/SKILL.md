@@ -25,7 +25,7 @@ allowed-tools:
   - Bash(awk:*)
   - Bash(pwd:*)
   - Bash(tr:*)
-user-invocable: true
+disable-model-invocation: true
 ---
 
 # Git Worktree Workflow
