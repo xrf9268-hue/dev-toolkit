@@ -60,11 +60,11 @@ argument-hint: "<PR_URL> [--dry-run]"
 从 URL 提取 PROJECT、REPO、PR_ID：
 
 ```bash
-# 解析 URL
+# 解析 URL（使用 sed 以兼容 macOS）
 PR_URL="$1"
-PROJECT=$(echo "$PR_URL" | grep -oP '/projects/\K[^/]+')
-REPO=$(echo "$PR_URL" | grep -oP '/repos/\K[^/]+')
-PR_ID=$(echo "$PR_URL" | grep -oP '/pull-requests/\K[0-9]+')
+PROJECT=$(echo "$PR_URL" | sed -n 's|.*/projects/\([^/]*\)/.*|\1|p')
+REPO=$(echo "$PR_URL" | sed -n 's|.*/repos/\([^/]*\)/.*|\1|p')
+PR_ID=$(echo "$PR_URL" | sed -n 's|.*/pull-requests/\([0-9]*\).*|\1|p')
 
 echo "PROJECT: $PROJECT, REPO: $REPO, PR_ID: $PR_ID"
 ```
