@@ -1,0 +1,15 @@
+{
+  "name": "bb-code-review",
+  "version": "1.0.0",
+  "description": "Bitbucket PR 代码审查插件，支持多 Agent 并行审查和自动评论",
+  "skills": "./skills",
+  "author": {
+    "name": "yvan",
+    "email": "echo.yvan@gmail.com",
+    "url": "https://github.com/xrf9268-hue"
+  },
+  "homepage": "https://github.com/xrf9268-hue/dev-toolkit",
+  "repository": "https://github.com/xrf9268-hue/dev-toolkit",
+  "license": "MIT",
+  "keywords": ["bitbucket", "code-review", "pull-request", "workflow"]
+}
