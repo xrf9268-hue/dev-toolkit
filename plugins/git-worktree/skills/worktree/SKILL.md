@@ -1,5 +1,5 @@
 ---
-name: worktree
+name: git-worktree
 context: fork
 description: Create a git worktree with synced configs and background dependency installation. Supports arguments [branch-name] [--stash] [--from <worktree>]. Use when creating parallel development environments, switching branches with uncommitted changes, or when user mentions "worktree", "parallel branch", or "new environment".
 argument-hint: "[branch-name] [--stash] [--from <worktree>]"

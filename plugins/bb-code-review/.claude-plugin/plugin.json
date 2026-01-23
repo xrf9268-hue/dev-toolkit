@@ -1,6 +1,6 @@
 {
   "name": "bb-code-review",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Bitbucket PR 代码审查插件，支持多 Agent 并行审查和自动评论",
   "skills": "./skills",
   "author": {

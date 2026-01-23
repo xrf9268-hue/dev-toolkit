@@ -1,5 +1,5 @@
 ---
-name: bb-review
+name: bb-code-review
 description: |
   审查 Bitbucket Pull Request，使用多 Agent 并行分析代码变更。
 
