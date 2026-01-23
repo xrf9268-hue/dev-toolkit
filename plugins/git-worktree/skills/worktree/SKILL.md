@@ -1,8 +1,8 @@
 ---
 name: git-worktree
 context: fork
-description: Create a git worktree with synced configs and background dependency installation. Supports arguments [branch-name] [--stash] [--from <worktree>]. Use when creating parallel development environments, switching branches with uncommitted changes, or when user mentions "worktree", "parallel branch", or "new environment".
-argument-hint: "[branch-name] [--stash] [--from <worktree>]"
+description: Create a git worktree with synced configs and background dependency installation. Supports arguments [branch-name] [--stash] [--from <worktree>] [--base <branch>]. Use when creating parallel development environments, switching branches with uncommitted changes, or when user mentions "worktree", "parallel branch", or "new environment".
+argument-hint: "[branch-name] [--stash] [--from <worktree>] [--base <branch>]"
 allowed-tools:
   - Bash(git:*)
   - Bash(cp:*)
@@ -50,6 +50,7 @@ You are an expert DevOps assistant. Create a parallel development environment wi
 | `branch-name` | Target branch (positional) |
 | `--stash` | Migrate current uncommitted changes to new worktree |
 | `--from <worktree>` | Migrate changes from specified worktree |
+| `--base <branch>` | Base branch to create new branch from (default: main/master) |
 
 ## Directory Structure
 

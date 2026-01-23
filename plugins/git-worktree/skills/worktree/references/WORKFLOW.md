@@ -6,11 +6,13 @@ Parse `$ARGUMENTS` to extract:
 - `BRANCH_NAME`: The target branch (first positional argument)
 - `--stash`: Flag to migrate current uncommitted changes to the new worktree
 - `--from <name>`: Migrate uncommitted changes from the specified worktree
+- `--base <branch>`: Base branch to create new branch from (default: main/master)
 
 ```bash
 BRANCH_NAME=""
 USE_STASH=false
 FROM_WORKTREE=""
+BASE_BRANCH=""
 prev_arg=""
 
 for arg in $ARGUMENTS; do
@@ -18,7 +20,9 @@ for arg in $ARGUMENTS; do
     USE_STASH=true
   elif [ "$prev_arg" = "--from" ]; then
     FROM_WORKTREE="$arg"
-  elif [ "$arg" != "--from" ]; then
+  elif [ "$prev_arg" = "--base" ]; then
+    BASE_BRANCH="$arg"
+  elif [ "$arg" != "--from" ] && [ "$arg" != "--base" ]; then
     [ -z "$BRANCH_NAME" ] && BRANCH_NAME="$arg"
   fi
   prev_arg="$arg"
@@ -79,16 +83,36 @@ See [MIGRATION.md](MIGRATION.md) for detailed migration options.
 Check if branch exists and create the worktree:
 
 ```bash
+# Fetch latest from remote first
+git fetch origin
+
+# Determine base branch: user-specified or default (main/master)
+if [ -n "$BASE_BRANCH" ]; then
+  # User specified --base <branch>
+  TARGET_BASE="$BASE_BRANCH"
+else
+  # Auto-detect default branch (main or master)
+  TARGET_BASE=$(git remote show origin 2>/dev/null | awk '/HEAD branch/ {print $NF}')
+  if [ -z "$TARGET_BASE" ]; then
+    # Fallback: check if main or master exists
+    if git rev-parse --verify origin/main >/dev/null 2>&1; then
+      TARGET_BASE="main"
+    else
+      TARGET_BASE="master"
+    fi
+  fi
+fi
+
 # Check if branch exists locally or remotely
 LOCAL_EXISTS=$(git branch --list "$BRANCH_NAME")
 REMOTE_EXISTS=$(git ls-remote --heads origin "$BRANCH_NAME" 2>/dev/null)
 
 if [ -n "$LOCAL_EXISTS" ] || [ -n "$REMOTE_EXISTS" ]; then
-  # Branch exists
+  # Branch exists - use it directly
   git worktree add "$NEW_PATH" "$BRANCH_NAME"
 else
-  # New branch
-  git worktree add -b "$BRANCH_NAME" "$NEW_PATH"
+  # New branch - create from specified or default base branch
+  git worktree add -b "$BRANCH_NAME" "$NEW_PATH" "origin/$TARGET_BASE"
 fi
 ```
 

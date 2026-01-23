@@ -16,7 +16,15 @@ Creates a worktree at `../.worktrees/<project>/feature-auth/`
 $worktree my-new-feature
 ```
 
-If branch doesn't exist, creates it with `-b` flag.
+If branch doesn't exist, creates it from latest main/master.
+
+### Create new branch from specific base
+
+```
+$worktree my-new-feature --base develop
+```
+
+Creates new branch from `develop` instead of main/master.
 
 ### Interactive branch selection
 
@@ -49,6 +57,26 @@ $worktree feature-auth --from hotfix-123
 1. Stashes changes from `hotfix-123` worktree
 2. Creates `feature-auth` worktree
 3. Applies stash in new worktree
+
+---
+
+## With Base Branch
+
+### Create feature from develop branch
+
+```
+$worktree feature-new --base develop
+```
+
+Creates `feature-new` branch based on latest `origin/develop`.
+
+### Create hotfix from release branch
+
+```
+$worktree hotfix-123 --base release/v2.0
+```
+
+Creates `hotfix-123` branch based on `origin/release/v2.0`.
 
 ---
 

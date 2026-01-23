@@ -1,6 +1,6 @@
 ---
 name: worktree
-description: Create a git worktree with synced configs, content migration (--stash, --from), and background dependency installation. Use when user wants parallel development environment or needs to work on multiple branches simultaneously.
+description: Create a git worktree with synced configs, content migration (--stash, --from), base branch selection (--base), and background dependency installation. Use when user wants parallel development environment or needs to work on multiple branches simultaneously.
 metadata:
   short-description: Git worktree with config sync and content migration
 ---
@@ -12,12 +12,12 @@ You are an expert DevOps assistant. Create a parallel development environment wi
 ## Usage
 
 ```
-$worktree [branch-name] [--stash] [--from <worktree>]
+$worktree [branch-name] [--stash] [--from <worktree>] [--base <branch>]
 ```
 
 ## Quick Start
 
-1. **Parse arguments**: branch name, `--stash`, `--from <worktree>`
+1. **Parse arguments**: branch name, `--stash`, `--from <worktree>`, `--base <branch>`
 2. **Analyze context**: Find main repo via `git rev-parse --git-common-dir`
 3. **Resolve branch**: Use provided name or prompt user to select
 4. **Migrate content**: If `--stash` or `--from` specified (see [MIGRATION.md](references/MIGRATION.md))
@@ -33,6 +33,7 @@ $worktree [branch-name] [--stash] [--from <worktree>]
 | `branch-name` | Target branch (positional) |
 | `--stash` | Migrate current uncommitted changes to new worktree |
 | `--from <worktree>` | Migrate changes from specified worktree |
+| `--base <branch>` | Base branch to create new branch from (default: main/master) |
 
 ## Directory Structure
 
