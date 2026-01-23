@@ -4,10 +4,11 @@
 
 ## 工具列表
 
-| 工具 | 功能 | 版本 |
-|------|------|------|
-| **jira-commit** | 规范化 Git 提交工具，自动添加 JIRA 前缀 | 2.0.0 |
-| **git-worktree** | Git worktree 自动化管理，支持配置同步和内容迁移 | 1.0.0 |
+| 工具 | 功能 |
+|------|------|
+| **jira-commit** | 规范化 Git 提交工具，自动添加 JIRA 前缀 |
+| **git-worktree** | Git worktree 自动化管理，支持配置同步和内容迁移 |
+| **bb-code-review** | Bitbucket PR 代码审查，支持多 Agent 并行审查 |
 
 ## 支持平台
 
@@ -31,11 +32,13 @@ dev-toolkit/
 │   └── marketplace.json     # Marketplace 清单
 ├── plugins/
 │   ├── jira-commit/         # Claude Code 插件
-│   └── git-worktree/        # Claude Code 插件
+│   ├── git-worktree/        # Claude Code 插件
+│   └── bb-code-review/      # Claude Code 插件
 └── .codex/                  # Codex CLI Skills
     └── skills/
         ├── jira-commit/
-        └── worktree/
+        ├── worktree/
+        └── bb-code-review/
 ```
 
 ## Claude Code 安装
@@ -48,6 +51,7 @@ dev-toolkit/
 /plugin marketplace add xrf9268-hue/dev-toolkit
 /plugin install jira-commit@dev-toolkit
 /plugin install git-worktree@dev-toolkit
+/plugin install bb-code-review@dev-toolkit
 ```
 
 ### 本地安装
@@ -64,13 +68,7 @@ dev-toolkit/
 # 安装插件
 /plugin install jira-commit@dev-toolkit
 /plugin install git-worktree@dev-toolkit
-```
-
-用户级安装（可选，仅在需要跨项目显式调用时使用）：
-
-```bash
-/plugin install jira-commit@dev-toolkit --scope user
-/plugin install git-worktree@dev-toolkit
+/plugin install bb-code-review@dev-toolkit
 ```
 
 > 建议只在相关仓库使用自动触发，其他项目请显式调用。
@@ -89,12 +87,14 @@ claude plugin validate .
 # 或验证单个插件
 claude plugin validate ./plugins/jira-commit
 claude plugin validate ./plugins/git-worktree
+claude plugin validate ./plugins/bb-code-review
 ```
 
 ## 插件文档
 
 - `plugins/jira-commit/README.md` - 规范化提交工具
 - `plugins/git-worktree/README.md` - Worktree 管理工具
+- `plugins/bb-code-review/README.md` - Bitbucket PR 代码审查工具
 
 ## Codex CLI
 
@@ -103,6 +103,7 @@ claude plugin validate ./plugins/git-worktree
 ```
 $skill-installer install https://github.com/xrf9268-hue/dev-toolkit/tree/main/.codex/skills/jira-commit
 $skill-installer install https://github.com/xrf9268-hue/dev-toolkit/tree/main/.codex/skills/worktree
+$skill-installer install https://github.com/xrf9268-hue/dev-toolkit/tree/main/.codex/skills/bb-code-review
 ```
 
 安装后重启 Codex 生效。
@@ -110,3 +111,4 @@ $skill-installer install https://github.com/xrf9268-hue/dev-toolkit/tree/main/.c
 **使用方式**：
 - jira-commit：`$jira-commit`
 - worktree：`$worktree feature-auth`
+- bb-code-review：`$bb-code-review`
