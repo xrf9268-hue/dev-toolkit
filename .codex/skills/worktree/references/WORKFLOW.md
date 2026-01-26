@@ -91,14 +91,16 @@ if [ -n "$BASE_BRANCH" ]; then
   # User specified --base <branch>
   TARGET_BASE="$BASE_BRANCH"
 else
-  # Auto-detect default branch (main or master)
-  TARGET_BASE=$(git remote show origin 2>/dev/null | awk '/HEAD branch/ {print $NF}')
-  if [ -z "$TARGET_BASE" ]; then
-    # Fallback: check if main or master exists
-    if git rev-parse --verify origin/main >/dev/null 2>&1; then
-      TARGET_BASE="main"
-    else
-      TARGET_BASE="master"
+  # Priority: main > master > remote HEAD
+  if git rev-parse --verify origin/main >/dev/null 2>&1; then
+    TARGET_BASE="main"
+  elif git rev-parse --verify origin/master >/dev/null 2>&1; then
+    TARGET_BASE="master"
+  else
+    # Fallback: use remote HEAD branch
+    TARGET_BASE=$(git remote show origin 2>/dev/null | awk '/HEAD branch/ {print $NF}')
+    if [ -z "$TARGET_BASE" ]; then
+      TARGET_BASE="main"  # Ultimate fallback
     fi
   fi
 fi
