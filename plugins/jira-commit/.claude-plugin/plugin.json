@@ -1,6 +1,6 @@
 {
   "name": "jira-commit",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "统一的 JIRA 规范化提交插件，支持多项目 JIRA 前缀配置",
   "skills": "./skills",
   "author": {

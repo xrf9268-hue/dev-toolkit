@@ -30,9 +30,8 @@ allowed-tools:
 
 ## Git 上下文
 
-- JIRA 前缀列表: !`echo "${JIRA_PREFIXES:-JIRA}"`
+- JIRA 前缀列表: $JIRA_PREFIXES (默认: BGERP)
 - 当前分支: !`git branch --show-current`
-- 分支中的 JIRA: !`git branch --show-current | grep -oE "(${JIRA_PREFIXES//,/|})-[0-9]+" || echo ''`
 - 用户指定 JIRA: $ARGUMENTS
 - 工作区状态: !`git status --short`
 - 暂存区变更: !`git diff --staged --stat`
