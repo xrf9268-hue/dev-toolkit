@@ -1,6 +1,6 @@
 # Skill QA Checklist
 
-用于人工检查 frontmatter 的可发现性和使用命令是否一致。
+用于人工检查 `.agents/skills/` 的触发描述和正文行为是否一致。
 
 ## bb-code-review
 

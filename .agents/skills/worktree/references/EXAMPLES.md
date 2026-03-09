@@ -5,7 +5,7 @@
 ### Create worktree for existing branch
 
 ```
-$worktree feature-auth
+branch-name: feature-auth
 ```
 
 Creates a worktree at `../.worktrees/<project>/feature-auth/`
@@ -13,7 +13,7 @@ Creates a worktree at `../.worktrees/<project>/feature-auth/`
 ### Create worktree for new branch
 
 ```
-$worktree my-new-feature
+branch-name: my-new-feature
 ```
 
 If branch doesn't exist, creates it from latest main/master.
@@ -21,7 +21,8 @@ If branch doesn't exist, creates it from latest main/master.
 ### Create new branch from specific base
 
 ```
-$worktree my-new-feature --base develop
+branch-name: my-new-feature
+--base develop
 ```
 
 Creates new branch from `develop` instead of main/master.
@@ -29,7 +30,7 @@ Creates new branch from `develop` instead of main/master.
 ### Interactive branch selection
 
 ```
-$worktree
+branch-name: [ask user]
 ```
 
 Shows recent branches and prompts for selection.
@@ -41,7 +42,8 @@ Shows recent branches and prompts for selection.
 ### Move current changes to new worktree
 
 ```
-$worktree feature-auth --stash
+branch-name: feature-auth
+--stash
 ```
 
 1. Stashes current uncommitted changes
@@ -51,7 +53,8 @@ $worktree feature-auth --stash
 ### Move changes from another worktree
 
 ```
-$worktree feature-auth --from hotfix-123
+branch-name: feature-auth
+--from hotfix-123
 ```
 
 1. Stashes changes from `hotfix-123` worktree
@@ -65,7 +68,8 @@ $worktree feature-auth --from hotfix-123
 ### Create feature from develop branch
 
 ```
-$worktree feature-new --base develop
+branch-name: feature-new
+--base develop
 ```
 
 Creates `feature-new` branch based on latest `origin/develop`.
@@ -73,7 +77,8 @@ Creates `feature-new` branch based on latest `origin/develop`.
 ### Create hotfix from release branch
 
 ```
-$worktree hotfix-123 --base release/v2.0
+branch-name: hotfix-123
+--base release/v2.0
 ```
 
 Creates `hotfix-123` branch based on `origin/release/v2.0`.
@@ -98,14 +103,14 @@ Worktree created successfully!
 
   Path:     ../.worktrees/my-project/feature-auth/
   Branch:   feature-auth
-  Configs:  .codex/, .env, .vscode/
+  Configs:  .agents/, AGENTS.md, .env, .vscode/
 
   Migrated: Changes applied from current worktree
             Original stash preserved for safety
 
   Dependencies: Installing in background (pnpm)
 
-Quick start (copied to clipboard):
-  1. Press Ctrl+C to exit current session
-  2. Paste and run: cd ../.worktrees/my-project/feature-auth && codex
+Next steps:
+  1. Enter the new worktree path
+  2. Continue with your preferred agent, editor, or terminal workflow
 ```

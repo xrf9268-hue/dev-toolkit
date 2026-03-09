@@ -1,43 +1,11 @@
 ---
 name: worktree
-context: fork
 description: Use when the user wants a git worktree for a parallel branch workspace, an isolated development environment, or to move uncommitted changes into a new worktree.
-argument-hint: "[branch-name] [--stash] [--from <worktree>] [--base <branch>]"
-allowed-tools:
-  - Bash(git:*)
-  - Bash(cp:*)
-  - Bash(mkdir:*)
-  - Bash(ls:*)
-  - Bash(cat:*)
-  - Bash(cd:*)
-  - Bash(pnpm:*)
-  - Bash(npm:*)
-  - Bash(yarn:*)
-  - Bash(bun:*)
-  - Bash(echo:*)
-  - Bash(command:*)
-  - Bash(pbcopy:*)
-  - Bash(xclip:*)
-  - Bash(xsel:*)
-  - Bash(wl-copy:*)
-  - Bash(date:*)
-  - Bash(grep:*)
-  - Bash(awk:*)
-  - Bash(pwd:*)
-  - Bash(tr:*)
-disable-model-invocation: true
 ---
 
 # Git Worktree
 
 创建带配置同步、内容迁移和后台依赖安装的 Git worktree。
-
-## 命令映射
-
-| Surface | Command |
-|---------|---------|
-| Claude Code | `/worktree [branch-name] [--stash] [--from <worktree>] [--base <branch>]` |
-| Codex CLI | `$worktree [branch-name] [--stash] [--from <worktree>] [--base <branch>]` |
 
 ## 何时使用
 
@@ -57,7 +25,7 @@ disable-model-invocation: true
 
 ## 目录结构
 
-```
+```text
 parent/
 ├── project/                    # Main repo
 └── .worktrees/
@@ -70,14 +38,14 @@ parent/
 
 ## 工作流程
 
-1. 解析 `$ARGUMENTS`，提取 `branch-name`、`--stash`、`--from`、`--base`。
+1. 解析输入参数，提取 `branch-name`、`--stash`、`--from`、`--base`。
 2. 通过 `git rev-parse --show-toplevel` 和 `git rev-parse --git-common-dir` 定位主仓库和项目名。
 3. 决定目标分支：优先使用显式参数，否则提示用户选择或输入新分支。
 4. 如果指定 `--stash` 或 `--from`，先执行内容迁移准备。
 5. 在 `../.worktrees/<project>/<branch>/` 创建 worktree。
-6. 同步共享配置：`.claude/`、`.codex/`、`.env`、`.env.local`、`.vscode/`、`AGENTS.md` 等存在的文件。
+6. 同步共享配置：`.agents/`、`AGENTS.md`、`.env`、`.env.local`、`.vscode/` 等存在的文件；若仓库中存在其他 agent 配置目录，可按需一并同步。
 7. 检测包管理器（`pnpm` / `yarn` / `npm` / `bun`），后台安装依赖。
-8. 复制或展示快速启动命令，但**不要自动打开编辑器**。
+8. 展示进入新 worktree 的路径和后续建议动作，但**不要自动打开编辑器或 agent**。
 
 ## 详细文档
 
@@ -87,16 +55,16 @@ parent/
 
 ## 输出
 
-```
+```text
 Worktree created successfully!
 
   Path:     ../.worktrees/<project>/<branch>/
   Branch:   <branch-name>
-  Configs:  .claude/, .codex/, .env, .vscode/, ...
+  Configs:  .agents/, AGENTS.md, .env, .vscode/, ...
   Migrated: [if applicable]
   Dependencies: Installing in background (<pkg-mgr>)
 
-Quick start:
-  Claude Code: cd <path> && claude
-  Codex CLI:   cd <path> && codex
+Next steps:
+  cd <path>
+  启动你需要的 agent、编辑器或终端流程
 ```

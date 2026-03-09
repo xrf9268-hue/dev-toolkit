@@ -1,30 +1,11 @@
 ---
 name: jira-commit
 description: Use when the user wants to create a git commit for work tracked by a JIRA issue key, or explicitly provides a JIRA issue key for the commit.
-context: fork
-agent: general-purpose
-model: haiku
-disable-model-invocation: true
-argument-hint: "[JIRA编号（可选）]"
-allowed-tools:
-  - Bash(git add:*)
-  - Bash(git status:*)
-  - Bash(git commit:*)
-  - Bash(git diff:*)
-  - Bash(git log:*)
-  - Bash(git branch:*)
 ---
 
 # JIRA Commit
 
 创建符合团队规范的 Git 提交，并确保提交信息带有有效的 JIRA issue key。
-
-## 命令映射
-
-| Surface | Command |
-|---------|---------|
-| Claude Code | `/jira-commit [JIRA编号]` |
-| Codex CLI | `$jira-commit [JIRA编号]` |
 
 ## 何时使用
 
@@ -43,7 +24,7 @@ allowed-tools:
 
 - JIRA 前缀列表：`$JIRA_PREFIXES`
 - 当前分支：`git branch --show-current`
-- 用户指定 JIRA：`$ARGUMENTS`
+- 用户显式提供的 JIRA 编号
 - 工作区状态：`git status --short`
 - 暂存区变更：`git diff --staged --stat`
 - 未暂存变更：`git diff --stat`
@@ -62,7 +43,7 @@ allowed-tools:
    ```text
    ⚠️ 未检测到 JIRA 分支，且未指定 JIRA 编号。
 
-   若确需提交，请显式指定：/jira-commit <JIRA编号>
+   若确需提交，请显式提供 JIRA 编号，例如 PROJ-12345。
    ```
 4. 如果工作区无变更，报告并结束，不执行 `git add` 或 `git commit`。
 

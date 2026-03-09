@@ -1,31 +1,11 @@
 ---
-name: bb-review
+name: bb-code-review
 description: Use when the user wants to review a Bitbucket pull request, shares a Bitbucket PR URL, asks for a review preview, or wants to publish review comments to Bitbucket.
-context: fork
-agent: general-purpose
-model: sonnet
-disable-model-invocation: true
-argument-hint: "<PR_URL> [--dry-run] [--threshold N]"
-allowed-tools:
-  - Bash(curl:*)
-  - Bash(git:*)
-  - Bash(jq:*)
-  - Read
-  - Glob
-  - Grep
-  - Task
 ---
 
 # Bitbucket PR Review
 
 审查 Bitbucket Pull Request，输出预览结果或直接发布评论。
-
-## 命令映射
-
-| Surface | Command |
-|---------|---------|
-| Claude Code | `/bb-review <PR_URL> [--dry-run] [--threshold N]` |
-| Codex CLI | `$bb-code-review <PR_URL> [--dry-run] [--threshold N]` |
 
 ## 何时使用
 
@@ -54,7 +34,7 @@ allowed-tools:
 
 ## 输入解析
 
-- PR URL 来自 `$ARGUMENTS`
+- 输入中需要提供完整的 PR URL
 - 解析正则：`/projects/([^/]+)/repos/([^/]+)/pull-requests/(\d+)`
 - 提取结果：`PROJECT`、`REPO`、`PR_ID`
 
@@ -85,13 +65,13 @@ allowed-tools:
 ## 审查流程
 
 1. 从 URL 提取 `PROJECT`、`REPO`、`PR_ID`。
-2. 通过 SSH 克隆仓库到临时目录，并收集 `CLAUDE.md`、`.claude/` 等项目规范上下文。
+2. 通过 SSH 克隆仓库到临时目录，并收集 `AGENTS.md`、`.agents/` 和其他仓库内规范文件。
 3. 获取 PR 元数据、变更文件、diff，以及必要的评论历史和活动记录。
 4. 按以下 5 个固定维度审查代码：
 
 | 审查维度 | 关注点 |
 |----------|--------|
-| 规范合规 | `CLAUDE.md` 规则、命名约定、文件结构 |
+| 规范合规 | `AGENTS.md` 规则、仓库规范、文件结构 |
 | Bug 扫描 | 空指针、边界条件、资源泄漏、并发问题 |
 | 历史上下文 | 相关提交、模式变化、回归风险 |
 | 评论历史 | 避免重复评论、跟进未解决问题 |
@@ -140,9 +120,7 @@ PR URL: https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123
 发现问题: 5 个
 [问题列表...]
 
-重新运行并去掉 `--dry-run` 可发布评论：
-- Claude Code: `/bb-review <PR_URL>`
-- Codex CLI: `$bb-code-review <PR_URL>`
+重新运行并去掉 `--dry-run` 可发布评论。
 ```
 
 **无问题**：
