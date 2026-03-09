@@ -2,7 +2,7 @@
 
 ## Step 1: Argument Parsing
 
-Parse `$ARGUMENTS` to extract:
+Parse the user-provided arguments to extract:
 - `BRANCH_NAME`: The target branch (first positional argument)
 - `--stash`: Flag to migrate current uncommitted changes to the new worktree
 - `--from <name>`: Migrate uncommitted changes from the specified worktree
@@ -143,8 +143,7 @@ GIT_COMMON_DIR=$(git rev-parse --git-common-dir)
 MAIN_REPO=$(cd "$GIT_COMMON_DIR/.." && pwd)
 
 # Copy configs (only if they exist)
-[ -e "$MAIN_REPO/.claude" ] && cp -r "$MAIN_REPO/.claude" "$NEW_PATH/"
-[ -e "$MAIN_REPO/.codex" ] && cp -r "$MAIN_REPO/.codex" "$NEW_PATH/"
+[ -e "$MAIN_REPO/.agents" ] && cp -r "$MAIN_REPO/.agents" "$NEW_PATH/"
 [ -e "$MAIN_REPO/.env" ] && cp "$MAIN_REPO/.env" "$NEW_PATH/"
 [ -e "$MAIN_REPO/.env.local" ] && cp "$MAIN_REPO/.env.local" "$NEW_PATH/"
 [ -e "$MAIN_REPO/AGENTS.md" ] && cp "$MAIN_REPO/AGENTS.md" "$NEW_PATH/"
@@ -153,6 +152,8 @@ MAIN_REPO=$(cd "$GIT_COMMON_DIR/.." && pwd)
 [ -e "$MAIN_REPO/.windsurfrules" ] && cp "$MAIN_REPO/.windsurfrules" "$NEW_PATH/"
 [ -e "$MAIN_REPO/.vscode" ] && cp -r "$MAIN_REPO/.vscode" "$NEW_PATH/"
 ```
+
+If the repository uses other agent-specific config directories, copy them explicitly only when they exist and are part of that repo's standard workflow.
 
 ## Step 9: Dependency Installation (Background)
 
@@ -196,7 +197,7 @@ fi
 
 # Copy launch command
 if [ -n "$CLIP_CMD" ]; then
-  echo "cd $NEW_PATH && claude" | $CLIP_CMD
+  echo "cd $NEW_PATH" | $CLIP_CMD
   CLIPBOARD_SUCCESS=true
 else
   CLIPBOARD_SUCCESS=false
@@ -205,4 +206,4 @@ fi
 
 ## Step 11: Summary Output
 
-**Do NOT automatically open an editor.** Provide a clear summary with all relevant information.
+**Do NOT automatically open an editor or agent.** Provide a clear summary with all relevant information.
