@@ -1,101 +1,83 @@
-# Content Migration Guide
+# Worktree Migration Reference
 
-This document explains the two migration options for moving uncommitted changes to a new worktree.
+本文件定义 `--stash` 与 `--from <worktree>` 的迁移规则。
 
-## Option A: `--stash` Flag
+## Shared Rules
 
-Migrate **current** uncommitted changes to the new worktree.
-
-### When to Use
-
-- You have work-in-progress in the current directory
-- You want to continue that work in a new branch/worktree
-
-### How It Works
+- `--stash` 与 `--from <worktree>` 互斥
+- 迁移前先检查来源工作区是否有未提交改动：
 
 ```bash
-if [ "$USE_STASH" = true ]; then
-  # Check for uncommitted changes
-  if [ -n "$(git status --porcelain)" ]; then
-    STASH_MSG="worktree-migrate-$(date +%Y%m%d-%H%M%S)"
-
-    # Stash including untracked files
-    git stash push -u -m "$STASH_MSG"
-    STASH_CREATED=true
-
-    echo "Changes stashed: $STASH_MSG"
-  else
-    echo "No changes to migrate"
-    STASH_CREATED=false
-  fi
-fi
+git status --porcelain
 ```
 
-### Key Points
+- 迁移时要包含 untracked files
+- 必须记录“本次创建的 stash ref”，后续只能用这个 ref 应用改动
+- 绝不能假设最新条目一定是 `stash@{0}`
 
-- Uses `git stash push -u` to include untracked files
-- Creates a timestamped stash message for identification
-- Original stash is preserved after applying (for safety)
+## Option A: `--stash`
 
----
+适用场景：
 
-## Option B: `--from <worktree>` Flag
+- 当前目录有 work-in-progress
+- 用户想把当前改动整体迁到新 worktree
 
-Migrate changes from **another existing worktree**.
+推荐步骤：
 
-### When to Use
-
-- You have work-in-progress in a different worktree
-- You want to move that work to a new branch/worktree
-
-### How It Works
+1. 检查当前工作区是否有改动
+2. 无改动时标记 `Migrated: skipped (no local changes)`，继续创建 worktree
+3. 有改动时执行带唯一消息的 stash：
 
 ```bash
-if [ -n "$FROM_WORKTREE" ]; then
-  # Find source worktree path
-  SOURCE_PATH=$(git worktree list | grep "$FROM_WORKTREE" | awk '{print $1}')
-
-  if [ -z "$SOURCE_PATH" ]; then
-    echo "Error: Worktree '$FROM_WORKTREE' not found"
-    git worktree list
-    exit 1
-  fi
-
-  # Check for changes in source
-  if [ -n "$(git -C "$SOURCE_PATH" status --porcelain)" ]; then
-    STASH_MSG="migrate-from-${FROM_WORKTREE}-$(date +%s)"
-    git -C "$SOURCE_PATH" stash push -u -m "$STASH_MSG"
-    FROM_STASH_CREATED=true
-    echo "Changes stashed from $FROM_WORKTREE: $STASH_MSG"
-  else
-    echo "No changes in source worktree"
-    FROM_STASH_CREATED=false
-  fi
-fi
+STASH_MSG="worktree-migrate-$(date +%Y%m%d-%H%M%S)"
+git stash push -u -m "$STASH_MSG"
 ```
 
-### Key Points
-
-- Searches existing worktrees by name
-- Shows error and lists worktrees if source not found
-- Uses `git -C` to operate on remote worktree
-
----
-
-## Applying Migrated Changes
-
-After worktree creation, changes are applied automatically:
+4. 通过消息精确捕获本次 stash ref：
 
 ```bash
-if [ "$STASH_CREATED" = true ] || [ "$FROM_STASH_CREATED" = true ]; then
-  git -C "$NEW_PATH" stash apply "stash@{0}"
-  echo "Changes applied to new worktree"
-  echo "Original stash preserved (use 'git stash drop' to remove)"
-fi
+git stash list --format='%gd %gs'
 ```
+
+只接受与 `STASH_MSG` 精确匹配的条目。
+
+## Option B: `--from <worktree>`
+
+适用场景：
+
+- 另一个 worktree 中有 work-in-progress
+- 用户想把那份改动迁到新的目标分支
+
+worktree 解析规则：
+
+1. 用 `git worktree list --porcelain` 枚举现有 worktree
+2. `--from` 只接受以下两种精确标识：
+   - worktree 的完整路径
+   - worktree 目录 basename 的精确匹配
+3. 找不到或命中多个候选时，立即停止并列出现有 worktree 列表
+
+来源校验：
+
+- 先对来源 worktree 执行 `git -C <source> status --porcelain`
+- 无改动时标记 `Migrated: skipped (no source changes)`，继续创建 worktree
+- 有改动时在来源 worktree 中执行带唯一消息的 `git stash push -u -m "$STASH_MSG"`
+
+## Applying the Stash
+
+创建新 worktree 后：
+
+```bash
+git -C "$NEW_PATH" stash apply "$STASH_REF"
+```
+
+状态规则：
+
+- 应用成功：`Migrated: applied (<stash-ref>)`
+- 无需迁移：`Migrated: skipped (...)`
+- 应用冲突：`Migrated: failed (conflicts while applying <stash-ref>)`
 
 ## Safety Notes
 
-1. **Stash is preserved**: The original stash is NOT dropped automatically
-2. **Manual cleanup**: Use `git stash drop` after confirming changes applied correctly
-3. **Conflict handling**: If apply fails due to conflicts, resolve manually in new worktree
+- stash 默认保留，不自动 `drop`
+- 发生冲突时，明确告知冲突发生在新 worktree，并保留原始 stash 供用户复查
+- 用户确认改动已经安全迁移前，不要建议自动清理 stash

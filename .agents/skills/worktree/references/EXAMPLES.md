@@ -1,116 +1,103 @@
-# Usage Examples
+# Worktree Examples
 
-## Basic Usage
+## Natural Language Triggers
 
-### Create worktree for existing branch
+- `给我建个 worktree 用来做 feature-auth`
+- `我想并行做支付重构，别动当前分支，帮我开个隔离目录`
+- `把当前没提交的改动迁到新的 checkout 继续做`
+- `把 hotfix-123 那个 worktree 里的改动挪到 release-hotfix`
 
-```
+## Parameter Combinations
+
+### Existing Branch
+
+```text
 branch-name: feature-auth
 ```
 
-Creates a worktree at `../.worktrees/<project>/feature-auth/`
+结果：若 `feature-auth` 未被其他 worktree 占用，则直接为该分支创建 worktree。
 
-### Create worktree for new branch
+### Existing Branch Already Checked Out
 
-```
-branch-name: my-new-feature
-```
-
-If branch doesn't exist, creates it from latest main/master.
-
-### Create new branch from specific base
-
-```
-branch-name: my-new-feature
---base develop
-```
-
-Creates new branch from `develop` instead of main/master.
-
-### Interactive branch selection
-
-```
-branch-name: [ask user]
-```
-
-Shows recent branches and prompts for selection.
-
----
-
-## With Content Migration
-
-### Move current changes to new worktree
-
-```
+```text
 branch-name: feature-auth
---stash
 ```
 
-1. Stashes current uncommitted changes
-2. Creates worktree
-3. Applies stash in new worktree
+结果：如果 `feature-auth` 已在当前或其他 worktree 中 checkout，不要重试同名分支；改为询问新的 `branch-name`，或用新分支名并以 `feature-auth` 作为 `--base` 创建派生分支。
 
-### Move changes from another worktree
+### New Branch From Explicit Base
 
-```
-branch-name: feature-auth
---from hotfix-123
-```
-
-1. Stashes changes from `hotfix-123` worktree
-2. Creates `feature-auth` worktree
-3. Applies stash in new worktree
-
----
-
-## With Base Branch
-
-### Create feature from develop branch
-
-```
+```text
 branch-name: feature-new
 --base develop
 ```
 
-Creates `feature-new` branch based on latest `origin/develop`.
+结果：若 `feature-new` 不存在，则基于 `develop` 创建新分支并创建 worktree。
 
-### Create hotfix from release branch
+### Migrate Current Changes
 
+```text
+branch-name: feature-auth
+--stash
 ```
-branch-name: hotfix-123
---base release/v2.0
+
+结果：当前工作区有改动时先 stash，再在新 worktree 应用本次 stash ref。
+
+### Migrate From Another Worktree
+
+```text
+branch-name: release-hotfix
+--from hotfix-123
 ```
 
-Creates `hotfix-123` branch based on `origin/release/v2.0`.
+结果：从 `hotfix-123` 对应的精确 worktree 解析来源，stash 来源改动后在新 worktree 应用。
 
----
+### Remote-Only Branch
 
-## Natural Language Triggers
-
-The skill also responds to natural language:
-
-- "Create a parallel branch for feature work"
-- "I need a new worktree for testing"
-- "Switch to a new branch but keep my changes"
-- "Set up a parallel development environment"
-
----
-
-## Output Example
-
+```text
+branch-name: release-hotfix
 ```
+
+结果：如果 `release-hotfix` 只存在于远端，先按 remote 选择规则解析唯一远端，再在新 worktree 中创建本地跟踪分支；多 remote 命中时停止并询问。
+
+## Output Samples
+
+### Success With Migration
+
+```text
 Worktree created successfully!
 
-  Path:     ../.worktrees/my-project/feature-auth/
-  Branch:   feature-auth
-  Configs:  .agents/, AGENTS.md, .env, .vscode/
-
-  Migrated: Changes applied from current worktree
-            Original stash preserved for safety
-
-  Dependencies: Installing in background (pnpm)
+  Path:         ../.worktrees/my-project/release-hotfix/
+  Branch:       release-hotfix
+  Migrated:     applied (stash@{2})
+  Local config: copied .env, docs/.local
+  Dependencies: installing in background (pnpm)
 
 Next steps:
-  1. Enter the new worktree path
-  2. Continue with your preferred agent, editor, or terminal workflow
+  cd ../.worktrees/my-project/release-hotfix/
+  继续你的编辑器、agent 或终端流程
+```
+
+### Success Without Migration
+
+```text
+Worktree created successfully!
+
+  Path:         ../.worktrees/my-project/feature-auth/
+  Branch:       feature-auth
+  Migrated:     skipped (no local changes)
+  Local config: skipped
+  Dependencies: skipped
+
+Next steps:
+  cd ../.worktrees/my-project/feature-auth/
+  继续你的编辑器、agent 或终端流程
+```
+
+### Base Branch Required
+
+```text
+⚠️ 无法确定新分支的基线分支。
+
+请显式提供 --base <branch>，或先创建/同步默认分支。
 ```

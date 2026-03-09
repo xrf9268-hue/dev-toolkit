@@ -17,7 +17,7 @@
 | Skill | 用途 |
 |------|------|
 | `bb-code-review` | 审查 Bitbucket Pull Request，输出预览结果或发布评论 |
-| `jira-commit` | 生成符合团队规范且带有效 JIRA issue key 的提交 |
+| `jira-commit` | 生成符合团队规范的提交；如能解析到 JIRA issue key 则自动附带前缀 |
 | `worktree` | 创建带配置同步、内容迁移和后台依赖安装的 Git worktree |
 
 ## 维护方式

@@ -1,209 +1,162 @@
-# Detailed Workflow Steps
+# Worktree Workflow Reference
 
-## Step 1: Argument Parsing
+本文件补充主 skill 的详细决策规则：分支解析、路径约定、本地配置同步和输出摘要。
 
-Parse the user-provided arguments to extract:
-- `BRANCH_NAME`: The target branch (first positional argument)
-- `--stash`: Flag to migrate current uncommitted changes to the new worktree
-- `--from <name>`: Migrate uncommitted changes from the specified worktree
-- `--base <branch>`: Base branch to create new branch from (default: main/master)
+## Primary Use Cases
+
+1. 为现有分支或新分支创建隔离 worktree
+2. 用 `--stash` 把当前工作区未提交改动迁到新 worktree
+3. 用 `--from <worktree>` 把其他 worktree 的未提交改动迁到新 worktree
+
+## 1. Input Resolution
+
+- `branch-name` 是第一个位置参数
+- `--stash` 与 `--from <worktree>` 互斥；同时出现时立即报错并停止
+- `--base <branch>` 只在目标分支尚不存在时生效
+- 未提供 `branch-name` 时，先执行：
 
 ```bash
-BRANCH_NAME=""
-USE_STASH=false
-FROM_WORKTREE=""
-BASE_BRANCH=""
-prev_arg=""
-
-for arg in $ARGUMENTS; do
-  if [ "$arg" = "--stash" ]; then
-    USE_STASH=true
-  elif [ "$prev_arg" = "--from" ]; then
-    FROM_WORKTREE="$arg"
-  elif [ "$prev_arg" = "--base" ]; then
-    BASE_BRANCH="$arg"
-  elif [ "$arg" != "--from" ] && [ "$arg" != "--base" ]; then
-    [ -z "$BRANCH_NAME" ] && BRANCH_NAME="$arg"
-  fi
-  prev_arg="$arg"
-done
+git for-each-ref --sort=-committerdate refs/heads/ --format='%(refname:short)' | head -n 10
 ```
 
-## Step 2: Context & Path Analysis
+然后让用户在“已有分支”与“新分支名”之间做选择。
 
-Execute these commands to understand the current environment:
+## 2. Repository Context
+
+先读取仓库上下文：
 
 ```bash
 git rev-parse --show-toplevel
 git rev-parse --git-common-dir
+git remote
 ```
 
-- Identify the **Main Repo** (use `--git-common-dir` to find it)
-- Get the **Project Name** from the repo root basename
+- `--show-toplevel` 给出当前 worktree 对应的仓库根目录
+- `--git-common-dir` 用于定位 shared git dir，并反推主仓库位置
+- `git remote` 用于判断是否能从远端 HEAD 推断默认基线
 
-## Step 3: Branch Resolution
+## 3. Target Path
 
-**If BRANCH_NAME provided**: Use it as the target branch.
+路径固定为：
 
-**If NO BRANCH_NAME provided**:
-1. List recent branches:
-   ```bash
-   git for-each-ref --sort=-committerdate refs/heads/ --format='%(refname:short)' | head -n 10
-   ```
-2. Ask the user to select a branch or enter a new one.
-
-## Step 4: Worktree Path Determination
-
-Use the unified `.worktrees/` directory structure:
-
-```bash
-PROJECT_ROOT=$(git rev-parse --show-toplevel)
-PROJECT_NAME=$(basename "$PROJECT_ROOT")
-PARENT_DIR=$(dirname "$PROJECT_ROOT")
-
-# Unified worktrees directory
-WORKTREES_BASE="${PARENT_DIR}/.worktrees/${PROJECT_NAME}"
-
-# Create base directory if needed
-mkdir -p "$WORKTREES_BASE"
-
-# Sanitize branch name: replace / with - for flat directory structure
-SAFE_BRANCH_NAME=$(echo "$BRANCH_NAME" | tr '/' '-')
-
-# New worktree path
-NEW_PATH="${WORKTREES_BASE}/${SAFE_BRANCH_NAME}"
+```text
+../.worktrees/<project>/<safe-branch>/
 ```
 
-## Step 5: Content Migration
+决策规则：
 
-See [MIGRATION.md](MIGRATION.md) for detailed migration options.
+- `<project>` 取仓库根目录 basename
+- `<safe-branch>` 为目标分支名，将 `/` 替换为 `-`
+- 如果目标路径已存在，先检查它是否已经注册为 worktree；已注册则报告现有路径，未注册则停止并提示用户处理目录冲突
 
-## Step 6: Worktree Creation
+## 4. Branch and Base Resolution
 
-Check if branch exists and create the worktree:
+### Existing Branch
 
-```bash
-# Fetch latest from remote first
-git fetch origin
+- 本地目标分支已存在且未被任何 worktree 占用：直接 `git worktree add <path> <branch>`
+- 本地目标分支已存在但已在当前或其他 worktree 中 checkout：
+  - 立即停止，不要重试同名分支
+  - 明确说明 Git 不允许同一分支同时附着到多个 worktree
+  - 让用户二选一：
+    - 提供新的 `branch-name`
+    - 如果目的是从该分支当前状态继续派生工作，用新分支名并将该已有分支作为 `--base`
+- 仅远端分支存在：先按下面的 remote 选择规则解析远端，再在新 worktree 中创建本地跟踪分支
 
-# Determine base branch: user-specified or default (main/master)
-if [ -n "$BASE_BRANCH" ]; then
-  # User specified --base <branch>
-  TARGET_BASE="$BASE_BRANCH"
-else
-  # Priority: main > master > remote HEAD
-  if git rev-parse --verify origin/main >/dev/null 2>&1; then
-    TARGET_BASE="main"
-  elif git rev-parse --verify origin/master >/dev/null 2>&1; then
-    TARGET_BASE="master"
-  else
-    # Fallback: use remote HEAD branch
-    TARGET_BASE=$(git remote show origin 2>/dev/null | awk '/HEAD branch/ {print $NF}')
-    if [ -z "$TARGET_BASE" ]; then
-      TARGET_BASE="main"  # Ultimate fallback
-    fi
-  fi
-fi
+### New Branch
 
-# Check if branch exists locally or remotely
-LOCAL_EXISTS=$(git branch --list "$BRANCH_NAME")
-REMOTE_EXISTS=$(git ls-remote --heads origin "$BRANCH_NAME" 2>/dev/null)
+仅当目标分支不存在时才创建新分支。基线优先级如下：
 
-if [ -n "$LOCAL_EXISTS" ] || [ -n "$REMOTE_EXISTS" ]; then
-  # Branch exists - use it directly
-  git worktree add "$NEW_PATH" "$BRANCH_NAME"
-else
-  # New branch - create from specified or default base branch
-  git worktree add -b "$BRANCH_NAME" "$NEW_PATH" "origin/$TARGET_BASE"
-fi
+1. 显式 `--base <branch>`
+2. 本地默认分支：优先 `main`，其次 `master`
+3. 远端 HEAD：
+   - 按下面的 remote 选择规则解析默认 remote
+   - 再读取该 remote 的 HEAD branch
+
+如果以上都无法解析，立即报告：
+
+```text
+⚠️ 无法确定新分支的基线分支。
+
+请显式提供 --base <branch>，或先创建/同步默认分支。
 ```
 
-## Step 7: Apply Migrated Changes
+不要假设 `origin/main` 一定存在。
 
-After worktree creation, apply the stashed changes:
+### Remote Selection Policy
 
-```bash
-# Apply stash if created
-if [ "$STASH_CREATED" = true ] || [ "$FROM_STASH_CREATED" = true ]; then
-  git -C "$NEW_PATH" stash apply "stash@{0}"
-  echo "Changes applied to new worktree"
+当需要从远端解析“默认基线”或“仅远端存在的目标分支”时，统一使用以下规则：
 
-  # Note: Original stash is preserved for safety
-  echo "Original stash preserved (use 'git stash drop' to remove)"
-fi
-```
+1. 如果 `origin` 存在，且目标分支或默认 HEAD 可从 `origin` 唯一解析，优先使用 `origin`
+2. 如果没有 `origin`，且仓库只有一个 remote，使用该 remote
+3. 如果目标分支只在一个 remote 上存在，使用该 remote
+4. 如果多个 remote 都匹配，立即停止并让用户显式指定 remote 或 `--base`
 
-## Step 8: Environment Synchronization
+不要在多 remote 场景下自行猜测远端。
 
-Copy configuration files from the **Main Repo** to the **New Worktree**:
+## 5. Worktree Creation
 
-```bash
-# Get main repo root (works from any worktree)
-GIT_COMMON_DIR=$(git rev-parse --git-common-dir)
-MAIN_REPO=$(cd "$GIT_COMMON_DIR/.." && pwd)
+创建顺序：
 
-# Copy configs (only if they exist)
-[ -e "$MAIN_REPO/.agents" ] && cp -r "$MAIN_REPO/.agents" "$NEW_PATH/"
-[ -e "$MAIN_REPO/.env" ] && cp "$MAIN_REPO/.env" "$NEW_PATH/"
-[ -e "$MAIN_REPO/.env.local" ] && cp "$MAIN_REPO/.env.local" "$NEW_PATH/"
-[ -e "$MAIN_REPO/AGENTS.md" ] && cp "$MAIN_REPO/AGENTS.md" "$NEW_PATH/"
-[ -e "$MAIN_REPO/docs/.local" ] && mkdir -p "$NEW_PATH/docs" && cp -r "$MAIN_REPO/docs/.local" "$NEW_PATH/docs/"
-[ -e "$MAIN_REPO/.cursorrules" ] && cp "$MAIN_REPO/.cursorrules" "$NEW_PATH/"
-[ -e "$MAIN_REPO/.windsurfrules" ] && cp "$MAIN_REPO/.windsurfrules" "$NEW_PATH/"
-[ -e "$MAIN_REPO/.vscode" ] && cp -r "$MAIN_REPO/.vscode" "$NEW_PATH/"
-```
+1. 先完成分支与迁移准备
+2. 再执行 `git worktree add`
+3. 创建成功后才进入迁移应用、本地配置同步和依赖安装
 
-If the repository uses other agent-specific config directories, copy them explicitly only when they exist and are part of that repo's standard workflow.
+需要显式报告的失败场景：
 
-## Step 9: Dependency Installation (Background)
+- 分支已被其他 worktree 占用
+- 目标路径冲突
+- 目标基线不存在
+- 远端跟踪分支不可解析
+- 多 remote 下目标远端不唯一
 
-Detect package manager and install dependencies:
+## 6. Local Configuration Sync
 
-```bash
-cd "$NEW_PATH"
+同步目标是“本地环境文件”，不是仓库内容复制。
 
-if [ -f "pnpm-lock.yaml" ]; then
-  (pnpm install > /dev/null 2>&1 &)
-  PKG_MGR="pnpm"
-elif [ -f "yarn.lock" ]; then
-  (yarn install > /dev/null 2>&1 &)
-  PKG_MGR="yarn"
-elif [ -f "bun.lockb" ]; then
-  (bun install > /dev/null 2>&1 &)
-  PKG_MGR="bun"
-elif [ -f "package-lock.json" ]; then
-  (npm install > /dev/null 2>&1 &)
-  PKG_MGR="npm"
-else
-  PKG_MGR=""
-fi
-```
+允许同步的项目：
 
-## Step 10: Copy Launch Command to Clipboard
+- `.env`
+- `.env.local`
+- `docs/.local`
+- 仓库文档明确标记为 local-only、且不应视为 tracked source 的其他目录
 
-```bash
-# Detect clipboard tool
-if command -v pbcopy &> /dev/null; then
-  CLIP_CMD="pbcopy"
-elif command -v xclip &> /dev/null; then
-  CLIP_CMD="xclip -selection clipboard"
-elif command -v xsel &> /dev/null; then
-  CLIP_CMD="xsel --clipboard --input"
-elif command -v wl-copy &> /dev/null; then
-  CLIP_CMD="wl-copy"
-else
-  CLIP_CMD=""
-fi
+处理规则：
 
-# Copy launch command
-if [ -n "$CLIP_CMD" ]; then
-  echo "cd $NEW_PATH" | $CLIP_CMD
-  CLIPBOARD_SUCCESS=true
-else
-  CLIPBOARD_SUCCESS=false
-fi
-```
+- 仅在源文件存在时复制
+- 目标文件已存在时默认跳过，并在摘要中说明
+- 不要把 `AGENTS.md`、`.agents/`、源码目录、锁文件或其他 tracked 内容写成必须复制项
 
-## Step 11: Summary Output
+## 7. Dependency Installation
 
-**Do NOT automatically open an editor or agent.** Provide a clear summary with all relevant information.
+安装是保留的自动化步骤，但必须带条件和状态输出。
+
+检测顺序：
+
+1. `pnpm-lock.yaml` -> `pnpm install`
+2. `yarn.lock` -> `yarn install`
+3. `bun.lockb` 或 `bun.lock` -> `bun install`
+4. `package-lock.json` -> `npm install`
+
+状态规则：
+
+- 命中锁文件且命令可用：后台启动安装，摘要写 `installing in background (<tool>)`
+- 命中锁文件但命令不可用：摘要写 `skipped (missing <tool>)`
+- 无锁文件：摘要写 `skipped`
+
+## 8. Summary Output
+
+摘要至少包含：
+
+- `Path`
+- `Branch`
+- `Migrated`
+- `Local config`
+- `Dependencies`
+
+状态文案要区分：
+
+- `applied`
+- `skipped`
+- `failed`
+
+不要自动打开编辑器、agent 或终端；只给出 `cd <path>` 作为 next step。
