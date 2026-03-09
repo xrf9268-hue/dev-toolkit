@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+This file provides repository-wide guidance for agents working with code in this repository.
 
 ## 项目概述
 
@@ -43,7 +43,7 @@ find .agents/skills -maxdepth 2 -name SKILL.md | sort
 2. 如需 supporting files，直接放在对应 skill package 内
 3. 运行 `bash scripts/check-skill-consistency.sh`
 
-根目录 `AGENTS.md` 是仓库唯一的 agent 指南，不再维护仓库级的 Claude 专用指南文件。
+根目录 `AGENTS.md` 是仓库唯一的仓库级 agent 指南。
 
 ### 敏感信息处理
 

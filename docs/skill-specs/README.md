@@ -1,6 +1,6 @@
 # Skill Architecture
 
-Skill 的唯一人工维护入口已经迁移到 `.agents/skills/`。
+Skill 的唯一人工维护入口是 `.agents/skills/`。
 
 ## 当前结构
 

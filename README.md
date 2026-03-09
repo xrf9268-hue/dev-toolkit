@@ -10,7 +10,7 @@
 - `.agents/skills/jira-commit/`
 - `.agents/skills/worktree/`
 
-这里不再直接提供 Claude plugin、Claude marketplace 或 Codex skill 安装面。后续如果需要面向特定客户端发布，应在其他仓库、release artifact 或独立发布流程中完成。
+面向特定客户端的发布，应在其他仓库、release artifact 或独立发布流程中完成。
 
 ## Skills
 
@@ -36,18 +36,7 @@ bash scripts/check-skill-consistency.sh
 - `name` 与 skill 目录名一致
 - `description` 以 `Use when` 开头
 - skill package 内的相对链接都存在，且不会越出 package
-- 仓库中不存在旧的 `plugins/`、`.codex/`、`.claude-plugin/` 发布面引用
-
-## Breaking Change
-
-本仓库已移除这些直接使用方式：
-
-- `claude plugin marketplace add ...`
-- `claude plugin install ...`
-- `claude plugin validate ...`
-- 通过 `/.codex/skills/...` 的安装 URL
-
-如果你之前把这个仓库当作 Claude 或 Codex 的安装源使用，需要改为消费单独的客户端适配产物，而不是直接依赖本仓库。
+- 仓库文档和目录结构保持 canonical-only
 
 ## 目录结构
 

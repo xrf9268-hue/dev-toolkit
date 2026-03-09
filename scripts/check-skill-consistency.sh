@@ -165,18 +165,20 @@ if errors:
     raise SystemExit(1)
 PY
 
-run_check "README documents breaking change" rg -n --fixed-strings "本仓库已移除这些直接使用方式" README.md
+run_check "README documents canonical-only positioning" rg -n --fixed-strings "这个仓库只保留 canonical skill source" README.md
+run_check "AGENTS.md is repository-wide, not Codex-specific" \
+  rg -n --fixed-strings "repository-wide guidance for agents" AGENTS.md
 
 reject_pattern_in_paths ".codex/" "no active .codex references remain in current architecture docs or skills" \
-  AGENTS.md docs/skill-specs/README.md .agents
+  README.md AGENTS.md docs/skill-specs/README.md docs/references/README.md .agents
 reject_pattern_in_paths ".claude-plugin/" "no active .claude-plugin references remain in current architecture docs or skills" \
-  AGENTS.md docs/skill-specs/README.md .agents
+  README.md AGENTS.md docs/skill-specs/README.md docs/references/README.md .agents
 reject_pattern_in_paths "plugins/" "no active plugins references remain in current architecture docs or skills" \
-  AGENTS.md docs/skill-specs/README.md .agents
+  README.md AGENTS.md docs/skill-specs/README.md docs/references/README.md .agents
 reject_pattern_in_paths "claude plugin " "no active Claude plugin commands remain outside migration notes" \
-  AGENTS.md docs/skill-specs/README.md docs/references/README.md docs/skill-qa-checklist.md .agents
+  README.md AGENTS.md docs/skill-specs/README.md docs/references/README.md docs/skill-qa-checklist.md .agents
 reject_pattern_in_paths ".claude/CLAUDE.md" "no repo CLAUDE.md references remain in active docs or skills" \
-  AGENTS.md docs/skill-specs/README.md .agents
+  README.md AGENTS.md docs/skill-specs/README.md docs/references/README.md .agents
 reject_pattern_in_paths ".claude/" "worktree and review skills no longer depend on .claude/" \
   .agents/skills/bb-code-review/SKILL.md \
   .agents/skills/worktree/SKILL.md \
