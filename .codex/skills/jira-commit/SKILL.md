@@ -1,16 +1,26 @@
 ---
 name: jira-commit
-description: |
-  创建规范化的 git 提交，自动从分支名提取 JIRA 前缀，支持用户指定编号。
-
-  触发场景：
-  - 用户明确请求提交代码（"帮我提交""commit一下""创建提交"）
-  - 用户显式调用 /jira-commit 或 jira-commit <JIRA编号>
-
-  支持的 JIRA 前缀通过环境变量 JIRA_PREFIXES 配置，非标准分支请显式调用并指定 JIRA 编号。
-disable-model-invocation: true
+description: Use when the user wants to create a git commit for work tracked by a JIRA issue key, or explicitly provides a JIRA issue key for the commit.
 argument-hint: "[JIRA编号（可选）]"
 ---
+
+# JIRA Commit
+
+创建符合团队规范的 Git 提交，并确保提交信息带有有效的 JIRA issue key。
+
+## 命令映射
+
+| Surface | Command |
+|---------|---------|
+| Claude Code | `/jira-commit [JIRA编号]` |
+| Codex CLI | `$jira-commit [JIRA编号]` |
+
+## 何时使用
+
+- 用户明确要求提交当前改动
+- 仓库使用 JIRA issue key 管理工作项
+- 当前分支可解析 JIRA 编号，或用户显式提供了 JIRA 编号
+- 不用于只生成 commit message 模板，也不用于 `git push`
 
 ## 环境变量
 
@@ -20,40 +30,30 @@ argument-hint: "[JIRA编号（可选）]"
 
 ## Git 上下文
 
-- JIRA 前缀列表: $JIRA_PREFIXES (默认: BGERP)
-- 当前分支: !`git branch --show-current`
-- 用户指定 JIRA: $ARGUMENTS
-- 工作区状态: !`git status --short`
-- 暂存区变更: !`git diff --staged --stat`
-- 未暂存变更: !`git diff --stat`
-- 最近提交: !`git log --oneline -5`
+- JIRA 前缀列表：`$JIRA_PREFIXES`
+- 当前分支：`git branch --show-current`
+- 用户指定 JIRA：`$ARGUMENTS`
+- 工作区状态：`git status --short`
+- 暂存区变更：`git diff --staged --stat`
+- 未暂存变更：`git diff --stat`
+- 最近提交：`git log --oneline -5`
 
-## 执行前置检查
+## 必要前置检查
 
-**重要**：在开始任何 git 操作前，必须先执行以下检查：
-
-1. 检查当前分支名：
+1. 读取当前分支名：
    ```bash
    git branch --show-current
    ```
-
-2. 验证执行条件：
-   - ✅ **继续执行**：分支名包含 JIRA 前缀（匹配 `$JIRA_PREFIXES` 中的任一前缀），或用户通过参数指定了 JIRA 编号
-   - ❌ **立即终止**：分支名不包含有效 JIRA 前缀且用户未指定 JIRA 编号
-
-3. 如果不满足条件，输出以下提示并**终止**：
-   ```
+2. 解析 JIRA 编号，规则如下：
+   - 用户通过参数显式指定时，优先使用参数
+   - 否则从分支名提取，匹配 `($JIRA_PREFIXES)-[0-9]+`
+3. 如果参数和分支名都无法提供有效 JIRA 编号，必须立即终止，并输出：
+   ```text
    ⚠️ 未检测到 JIRA 分支，且未指定 JIRA 编号。
 
-   若确需提交，请显式指定：/jira-commit <JIRA编号>
+   若确需提交，请显式指定：$jira-commit <JIRA编号>
    ```
-   **不执行任何 git add、commit 等操作**。
-
-## JIRA 前缀确定规则
-
-1. 如果用户通过参数指定了 JIRA（如 `jira-commit PROJ-12345`），优先使用用户指定的
-2. 否则从分支名中自动提取（匹配 `($JIRA_PREFIXES)-[0-9]+`）
-3. 如果都没有，则允许无前缀提交
+4. 如果工作区无变更，报告并结束，不执行 `git add` 或 `git commit`。
 
 ## 提交规范
 
@@ -68,7 +68,7 @@ argument-hint: "[JIRA编号（可选）]"
 
 ## 执行步骤
 
-1. 获取当前分支名并提取 JIRA 前缀
+1. 获取当前分支名并解析 JIRA 编号
 2. 检查工作区变更；如无变更，报告并结束
 3. 分析暂存和未暂存变更内容
 4. 将相关变更添加到暂存区（`git add`）
@@ -79,32 +79,30 @@ argument-hint: "[JIRA编号（可选）]"
 
 ## 提交格式示例
 
-```
+```text
 【PROJ-32921】修复分页下拉菜单被水平滚动条遮挡问题
 
 根因：表格容器设置了 z-index 创建了局部层叠上下文
 修复：删除父级容器的 z-index 属性
 ```
 
-无 JIRA 时：
-```
-修复分页下拉菜单被水平滚动条遮挡问题
-```
-
 ## 返回格式
 
 **成功**：
-```
+
+```text
 ✅ 已提交: abc1234
 【PROJ-32921】修复分页下拉菜单遮挡问题
 ```
 
 **失败**：
-```
+
+```text
 ❌ 提交失败: [错误原因]
 ```
 
 **无变更**：
-```
+
+```text
 ℹ️ 工作区无变更，无需提交
 ```

@@ -6,13 +6,13 @@
 
 | 工具 | 功能 |
 |------|------|
-| **jira-commit** | 规范化 Git 提交工具，自动添加 JIRA 前缀 |
+| **jira-commit** | 规范化 Git 提交工具，从分支名或显式参数确定 JIRA 编号 |
 | **git-worktree** | Git worktree 自动化管理，支持配置同步和内容迁移 |
 | **bb-code-review** | Bitbucket PR 代码审查，支持多 Agent 并行审查 |
 
 ## 支持平台
 
-- **Claude Code**：插件形式，通过 marketplace 安装
+- **Claude Code**：插件形式，通过 marketplace 安装，使用 slash command 手动触发
 - **Codex CLI**：Skill 形式，通过 `.codex/` 安装
 
 ## 平台差异
@@ -21,8 +21,18 @@
 |-----|-------------|-----------|
 | 形态 | Plugin + Skill | Skill |
 | 上下文隔离 | `context: fork` | - |
-| 触发方式 | 自动 / 手动 | `$<skill-name>` |
+| 触发方式 | 手动 slash command | `$<skill-name>` |
 | 安装位置 | `plugins/<name>/` | `.codex/skills/<name>/` |
+
+> 当前 Claude Code 侧三个 Skill 都配置了 `disable-model-invocation: true`，不会自动触发。
+
+## 命令映射
+
+| 工具/包名 | Claude Code 命令 | Codex CLI 命令 |
+|-----------|------------------|----------------|
+| `jira-commit` | `/jira-commit [JIRA编号]` | `$jira-commit [JIRA编号]` |
+| `git-worktree` | `/worktree [branch-name] [--stash] [--from <worktree>] [--base <branch>]` | `$worktree [branch-name] [--stash] [--from <worktree>] [--base <branch>]` |
+| `bb-code-review` | `/bb-review <PR_URL> [--dry-run] [--threshold N]` | `$bb-code-review <PR_URL> [--dry-run] [--threshold N]` |
 
 ## 目录结构
 
@@ -48,10 +58,10 @@ dev-toolkit/
 添加 marketplace 并安装插件：
 
 ```bash
-/plugin marketplace add xrf9268-hue/dev-toolkit
-/plugin install jira-commit@dev-toolkit
-/plugin install git-worktree@dev-toolkit
-/plugin install bb-code-review@dev-toolkit
+claude plugin marketplace add xrf9268-hue/dev-toolkit
+claude plugin install jira-commit@dev-toolkit
+claude plugin install git-worktree@dev-toolkit
+claude plugin install bb-code-review@dev-toolkit
 ```
 
 ### 本地安装
@@ -60,18 +70,18 @@ dev-toolkit/
 
 ```bash
 # 在 marketplace 根目录执行
-/plugin marketplace add ./
+claude plugin marketplace add ./
 
 # 或指定完整路径
-/plugin marketplace add /path/to/dev-toolkit
+claude plugin marketplace add /path/to/dev-toolkit
 
 # 安装插件
-/plugin install jira-commit@dev-toolkit
-/plugin install git-worktree@dev-toolkit
-/plugin install bb-code-review@dev-toolkit
+claude plugin install jira-commit@dev-toolkit
+claude plugin install git-worktree@dev-toolkit
+claude plugin install bb-code-review@dev-toolkit
 ```
 
-> 建议只在相关仓库使用自动触发，其他项目请显式调用。
+> 建议只在相关仓库安装这些插件；运行时仍需显式调用对应 slash command。
 
 ### 本地验证
 
@@ -96,6 +106,10 @@ claude plugin validate ./plugins/bb-code-review
 - `plugins/git-worktree/README.md` - Worktree 管理工具
 - `plugins/bb-code-review/README.md` - Bitbucket PR 代码审查工具
 
+## Skill 契约
+
+仓库级 canonical specs 位于 `docs/skill-specs/`，更新 Skill 行为时先改这些文件，再同步插件 README 和两套 `SKILL.md`。
+
 ## Codex CLI
 
 使用 `$skill-installer` 安装：
@@ -111,4 +125,4 @@ $skill-installer install https://github.com/xrf9268-hue/dev-toolkit/tree/main/.c
 **使用方式**：
 - jira-commit：`$jira-commit`
 - worktree：`$worktree feature-auth`
-- bb-code-review：`$bb-code-review`
+- bb-code-review：`$bb-code-review https://$BITBUCKET_HOST/projects/PROJECT/repos/REPO/pull-requests/123`

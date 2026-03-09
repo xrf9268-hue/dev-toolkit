@@ -6,6 +6,9 @@
     "name": "yvan",
     "email": "echo.yvan@gmail.com"
   },
+  "metadata": {
+    "description": "面向 Claude Code 与 Codex CLI 的开发工具集，包含 JIRA 提交、git worktree 和 Bitbucket PR 审查等手动触发的工程化技能。"
+  },
   "plugins": [
     {
       "name": "jira-commit",
