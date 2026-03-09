@@ -71,6 +71,5 @@ dev-toolkit/
 
 - `AGENTS.md`
 - `docs/skill-specs/README.md`
-- `docs/skill-specs/migration.md`
 - `docs/skill-qa-checklist.md`
 - `docs/references/README.md`

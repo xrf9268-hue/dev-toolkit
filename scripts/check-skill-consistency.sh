@@ -70,8 +70,7 @@ for path in \
   "README.md" \
   "docs/references/README.md" \
   "docs/skill-qa-checklist.md" \
-  "docs/skill-specs/README.md" \
-  "docs/skill-specs/migration.md"
+  "docs/skill-specs/README.md"
 do
   require_file "$path"
 done
@@ -166,7 +165,6 @@ if errors:
     raise SystemExit(1)
 PY
 
-require_file "docs/skill-specs/migration.md"
 run_check "README documents breaking change" rg -n --fixed-strings "本仓库已移除这些直接使用方式" README.md
 
 reject_pattern_in_paths ".codex/" "no active .codex references remain in current architecture docs or skills" \

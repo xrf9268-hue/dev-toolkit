@@ -14,4 +14,4 @@ Skill 的唯一人工维护入口已经迁移到 `.agents/skills/`。
 2. 如需 supporting files，直接保存在对应 skill package 内
 3. 运行 `bash scripts/check-skill-consistency.sh`
 
-迁移说明见 `docs/skill-specs/migration.md`。外部参考资料位于 `docs/references/`。
+外部参考资料位于 `docs/references/`。
